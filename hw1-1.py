@@ -16,85 +16,13 @@
 # you have 4 kings and 3 queens, there are three best
 # hands: 4 kings along with any of the three queens).
 
-from itertools import groupby
+from itertools import combinations
 
 def best_hand(hand):
     "From a 7-card hand, return the best 5 card hand."
-
-    # Your code here
-    "Return a value indicating the ranking of a hand."
-    ranks = card_ranks_7(hand)
-    if has_straight(hand) and has_flush(hand):
-        return get_flush_card(hand)
-    elif kind(4, ranks):
-        four_kinds = get_specify_cards(hand, kind(4, ranks))
-        last_card = get_max_cards(hand, 1, get_specify_cards(hand, kind(4, ranks)))
-        return four_kinds + last_card
-    elif kind(3, ranks) and kind(2, ranks):
-        three_kinds = get_specify_cards(hand, kind(3, ranks))
-        two_kinds = get_specify_cards(hand, kind(2, ranks))
-        return three_kinds + two_kinds
-    #Haven't got right answer to the following situation.
-    elif has_flush(hand):
-        return (5, max(card_ranks(get_flush_card(hand))))
-    elif has_straight(hand):
-        return (4, max(card_ranks(get_straight_card(hand))))
-    elif kind(3, ranks):
-        return (3, kind(3,ranks), get_max_cards(hand, 2, filterfalse=kind(3, ranks)))
-    elif two_pair(ranks):
-        return (2, two_pair(ranks), get_max_cards(hand, 1, filterfalse=two_pair(ranks)))
-    elif kind(2, ranks):
-        return (1, kind(2, ranks), get_max_cards(hand, 3, filterfalse=kind(2, ranks)))
-    else:
-        return (0, get_max_cards(hand, 5))
-
-def get_max_cards(hand, count, filterfalse):
-    filter_content = filterfalse() if hasattr(filterfalse, "__call__") else filterfalse
-    remain_hand = filter(lambda x:x not in filter_content, hand)
-    remain_hand.sort(key=lambda c:card_rank(c), reverse=True)
-    return remain_hand[:count]
-
-def get_specify_cards(hand, filter_func):
-    filter_content = filter_func() if hasattr(filter_func, "__call__") else filter_func
-    return filter(lambda c:card_rank(c[0]) == filter_content, hand)
-
-def get_suits(hand):
-    results = [c[1] for c in hand]
-    results.sort(reverse=True)
-    return results
-
-def has_flush(hand):
-    suit_results = [list(g) for k,g in groupby(get_suits(hand))]
-    return any(filter(lambda s:len(s) >= 5, suit_results))
-
-def get_flush_card(hand):
-   suit_results = [list(g) for k,g in groupby(get_suits(hand))]
-   flush_suits = filter(lambda s:len(s) >= 5, suit_results)
-   flush_suits.sort(key=lambda x:len(x), reverse=True)
-   flush_suit = list(set(flush_suits[0]))[0]
-   hand.sort(reverse=True)
-   results = filter(lambda c:c[1] == flush_suit, hand)
-   results.sort(key=lambda x:card_rank(x), reverse=True)
-   return results[:5]
-
-def card_rank(card):
-    return '--23456789TJQKA'.index(card[0])
-
-def get_straight_card(hand):
-    ranks = card_ranks_7(hand)
-    results = []
-    for r in xrange(max(ranks), max(ranks)-5, -1):
-        results.extend(filter(lambda c:c[0] == r, hand))
-    return results
-
-def has_straight(hand):
-    ranks = card_ranks_7(hand)
-    return all([x in ranks for x in xrange(min(ranks), min(ranks)+5)])
-
-def card_ranks_7(hand):
-    ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
-    ranks.sort(reverse = True)
-    return [7, 6, 5, 4, 3, 2, 1] if (ranks == [14, 7, 6, 5, 4, 3, 2]) else ranks  #potential BUG
+    result_hands = list(combinations(hand, 5))
+    result_hands.sort(key=lambda hand:hand_rank(hand), reverse=True)
+    return result_hands[0]
 
 # ------------------
 # Provided Functions
