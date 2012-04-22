@@ -47,7 +47,7 @@ def best_wild_hand(hand):
             result_hand = list(hand)
             for joker_card in get_joker_card(hand):
                 result_hand.remove(joker_card)
-            result_hand.extend(get_missing_4_kind_card(hand))
+            result_hand.extend(get_missing_4_kind_card(hand)[:len(get_joker_card(hand))])
             hand_pool.append(result_hand)
 
     hand_pool.sort(key=lambda hand:hand_rank(hand), reverse=True)
@@ -85,15 +85,6 @@ def get_missing_for_kind(n, hand):
 def get_joker_can_suit(color):
     color_suit = {"B":["S", "C"], "R":["H", "D"]}
     return color_suit[color]
-
-def get_missing_suit_in_3_kind(hand, rank):
-    remain_suits = ["C", "H", "D", "S"]
-    for r,s in hand:
-        print r, s
-        if r == rank and s in remain_suits:
-            remain_suits.remove(s)
-    print remain_suits
-    return remain_suits[0]
 
 def kind_with_joker(n, hand):
     """Return the first rank that this hand has 
