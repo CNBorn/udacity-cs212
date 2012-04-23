@@ -55,30 +55,42 @@ def get_hand_replaced_with_joker_list(hand, joker_combination):
     available_suits = []
     hand_without_joker = list(deepcopy(hand))
 
+    cards = []
+    hand_pool = []
     for rj, cj in joker_combination:
         hand_without_joker.remove("%s%s" % (rj, cj)) #remove joker
-        suit_list.extend(get_joker_can_suit(cj))
-
-    available_suits.extend(itertools.product(["23456789TJQKA"], suit_list))
-
-    cards = []
-    available_cards = []
-    for r, s in available_suits:
-        available_cards.append(itertools.product(r, s))
-    available_ranks_suits = [list(i) for i in available_cards]
-   
-    hand_pool = []
-    for t in available_ranks_suits:
-        cards.extend(["%s%s" % (r,s) for (r, s) in t])
+        card_ranks_suis = [itertools.product(crj, csj) for crj, csj in itertools.product(["23456789TJQKA"], get_joker_can_suit(cj))]
+        cards_for_this_joker = ["%s%s" % (r,s) for r, s in itertools.chain.from_iterable([list(i) for i in card_ranks_suis])]
+        cards_for_this_joker = [c for c in cards_for_this_joker if c not in hand]
+        cards.append(cards_for_this_joker)
 
     #combinations for n_joker cards
-    for card_set in combinations(cards, len(joker_combination)):
-        r = list(itertools.chain.from_iterable([hand_without_joker, card_set]))
-        r = list(set(r))
-        #print card_set, r
-        if len(r) == 5 and not has_joker(list(r)):
-            hand_pool.append(list(r))
+    if len(cards) > 1: #more than one joker:
+        card_group = itertools.product(cards[0], cards[1]) # 2 joker limit
+        iter_card_set = card_group
+    elif cards:
+        card_group = cards[0]
+        iter_card_set = combinations(card_group, len(joker_combination))
+    else:
+        #no cards to replace joker
+        return []
+    
+    for card_set in iter_card_set:
+        #card_set could be two cards for there are 2 jokers
 
+        ## chain.from_iterable(['ABC', 'DEF']) --> A B C D E F
+        #card_set = [CARDS] + (XA, XB) OR [CARDS] + (YA, YB)
+
+        if isinstance(card_set, tuple) and len(card_set) > 1:
+            r = list(set(list(set(hand_without_joker) | set(card_set))))
+            if len(r) == 5 and not has_joker(r):
+                hand_pool.append(r)
+        else:
+            r = list(itertools.chain.from_iterable([hand_without_joker,card_set]))
+        
+            if len(r) == 5 and not has_joker(list(r)):
+                hand_pool.append(r)
+    
     hand_pool.sort(key=lambda hand:hand_rank(hand), reverse=True)
     return hand_pool and hand_pool[0] or []
 
@@ -109,7 +121,6 @@ def test_best_wild_hand():
             == ['7C', 'TC', 'TD', 'TH', 'TS'])
     assert (sorted(best_wild_hand("JD TC TH 7C 7D 7S 7H".split()))
             == ['7C', '7D', '7H', '7S', 'JD'])
-    print sorted(best_wild_hand("6C 3C 8C 9C 2S ?B ?R".split()))
     assert (sorted(best_wild_hand("6C 3C 8C 9C 2S ?B ?R".split()))
             == ['3C', '6C', '8C', '9C', 'AC'])
     return 'test_best_wild_hand passes'
@@ -178,4 +189,4 @@ def two_pair(ranks):
         return None 
 
 if __name__ == "__main__":
-    test_best_wild_hand()
+    print test_best_wild_hand()
