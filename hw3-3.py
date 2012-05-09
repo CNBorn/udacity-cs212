@@ -13,7 +13,7 @@ def findtags(text):
     Lazy Match .+?
     Negative Match (?!x)
     """
-    results = re.findall(r"<(?!/).+?>", text)
+    results = re.findall(r"<(?!/)[^'|^\d]+?>", text)
     print results
     return results
 
