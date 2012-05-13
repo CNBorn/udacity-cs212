@@ -108,7 +108,7 @@ members => pair [,] members | pair
 pair => string [:] value
 number => int frac exp | int frac | int
 string => ["](\w)*["]
-int => [-+][0-9]+
+int => [-+]?[0-9]+
 frac => .[0-9]+
 exp => [e][+][0-9]+""", whitespace='\s*')
 
@@ -121,7 +121,10 @@ def test():
     
     print json_parse('"age"')
     print json_parse('["age"]')
+    print json_parse('["age", "another"]')
 
+    print json_parse('[1]')
+    print json_parse('[1, 2, 3]')
     print json_parse('["age", 1]')
 
     print json_parse('{"age": 21, "state":"CO","occupation":"rides the rodeo"}')
