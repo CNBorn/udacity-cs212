@@ -100,22 +100,25 @@ def parse(start_symbol, text, grammar):
 
 Fail = (None, None)
 
-JSON = grammar("""elements => value | elements
-value => array | object | string | number
-array => [[] elements []] | [[][]]
+JSON = grammar("""value => array | object | number | string
+array => [\[] elements [\]] | [[][]]
 object => { members }
+elements => value | elements
 members => pair | members
 pair => string : value
-number => int | frac | exp
-string => [a-z]* 
-int => [0-9]+
+number => int frac exp | int frac | int
+string => (\w)*
+int => [-+][0-9]+
 frac => .[0-9]+
-exp => e+[0-9]+""", whitespace='\s*')
+exp => [e][+][0-9]+""", whitespace='\s*')
 
 def json_parse(text):
     return parse('value', text, JSON)
 
 def test():
+
+    assert json_parse('-123.456e+789') == (['value', ['number', ['int', '-123'], ['frac', '.456'], ['exp', 'e+789']]], '')
+
     print json_parse('["testing", 1, 2, 3]')
     print (['value', ['array', '[', ['elements', ['value', 
                        ['string', '"testing"']], ',', ['elements', ['value', ['number', 
