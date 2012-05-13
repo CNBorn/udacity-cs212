@@ -102,12 +102,12 @@ Fail = (None, None)
 
 JSON = grammar("""value => array | object | number | string
 array => [\[] elements [\]] | [[][]]
-object => { members }
-elements => value | elements
-members => pair | members
-pair => string : value
+object => [{] members [}] | [{][}]
+elements => value [,] elements | value
+members => pair [,] members | pair
+pair => string [:] value
 number => int frac exp | int frac | int
-string => (\w)*
+string => ["](\w)*["]
 int => [-+][0-9]+
 frac => .[0-9]+
 exp => [e][+][0-9]+""", whitespace='\s*')
@@ -118,6 +118,18 @@ def json_parse(text):
 def test():
 
     assert json_parse('-123.456e+789') == (['value', ['number', ['int', '-123'], ['frac', '.456'], ['exp', 'e+789']]], '')
+    
+    print json_parse('"age"')
+    print json_parse('["age"]')
+
+    print json_parse('["age", 1]')
+
+    print json_parse('{"age": 21, "state":"CO","occupation":"rides the rodeo"}')
+    print (['value', ['object', '{', ['members', ['pair', ['string', '"age"'], 
+                       ':', ['value', ['number', ['int', '21']]]], ',', ['members', 
+                      ['pair', ['string', '"state"'], ':', ['value', ['string', '"CO"']]], 
+                      ',', ['members', ['pair', ['string', '"occupation"'], ':', 
+                      ['value', ['string', '"rides the rodeo"']]]]]], '}']], '')
 
     print json_parse('["testing", 1, 2, 3]')
     print (['value', ['array', '[', ['elements', ['value', 
