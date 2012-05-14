@@ -56,13 +56,16 @@ def bsuccessors(state):
 
     action = (chosen, chosen2, arrow)
 
+
     t = t + max([chosen, chosen2])
 
-    state = (frozenset(from_list), target, t)
+    if direction == "->":
+        state = (frozenset(from_list), target, t)
+    else:
+        state = (target, frozenset(from_list), t)
     
     return {state:action}
 
-    # your code here  
 
 def test():
 
