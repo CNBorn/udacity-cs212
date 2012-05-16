@@ -14,9 +14,11 @@ def path_cost(path):
     with the final action."""
     # path = [state, (action, total_cost), state, ... ]
     if len(path) < 3:
-        return # ???
+        return path[1][1]
     else:
-        # ???
+        result = path[1::2]
+        result = reversed(result)
+        return result.next()[1]
         
 def bcost(action):
     """Returns the cost (a number) of an action in the
@@ -24,7 +26,7 @@ def bcost(action):
     # An action is an (a, b, arrow) tuple; a and b are 
     # times; arrow is a string. 
     a, b, arrow = action
-    return # ???
+    return max(a,b)
 
 def test():
     assert path_cost(('fake_state1', ((2, 5, '->'), 5), 'fake_state2')) == 5
