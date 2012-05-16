@@ -15,7 +15,22 @@ def bsuccessors2(state):
     """Return a dict of {state:action} pairs. A state is a
     (here, there) tuple, where here and there are frozensets
     of people (indicated by their travel times) and/or the light."""
-    # your code here
+    here, there = state
+    if 'light' in here:
+        return dict(((here  - frozenset([a,b, 'light']),
+                      there | frozenset([a, b, 'light']),
+                     ),
+                     ((a, b, '->')))
+                    for a in here if a is not 'light'
+                    for b in here if b is not 'light')
+    else:
+        return dict(((here  | frozenset([a,b, 'light']),
+                      there - frozenset([a, b, 'light']),
+                      ),
+                     (a, b, '<-'))
+                    for a in there if a is not 'light'
+                    for b in there if b is not 'light')  
+
 
 def bsuccessors(state):
     """Return a dict of {state:action} pairs.  A state is a (here, there, t) tuple,
@@ -45,6 +60,9 @@ def test():
     here2 = frozenset([1, 2, 'light'])
     there2 = frozenset([3])
     
+    print bsuccessors2((here1, there1)) 
+    print { (frozenset([]), frozenset([1, 'light'])): (1, 1, '->')}
+
     assert bsuccessors2((here1, there1)) == {
             (frozenset([]), frozenset([1, 'light'])): (1, 1, '->')}
     assert bsuccessors2((here2, there2)) == {
