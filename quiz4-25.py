@@ -36,8 +36,8 @@ def shortest_path_search(start, successors, is_goal):
         print "s", s
         state = list(find_path(s, path, explored))
         print "state", state
-        if is_goal(state[0]):
-            path_list.append(path2)
+        if is_goal(state[0][0]):
+            path_list.append(state[0][1])
         if state[1] in path_list:
             break
         
