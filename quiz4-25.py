@@ -8,11 +8,50 @@
 # You can use the solution to mc_problem as a template for constructing your 
 # shortest_path_search. You can also see the example is_goal and successors
 # functions for a simple test problem below.
+from copy import deepcopy
 
 def shortest_path_search(start, successors, is_goal):
     """Find the shortest path from start state to a state
     such that is_goal(state) is true."""
-    # your code here
+    if start == is_goal(start):
+        return [start]
+
+    def find_path(s, path, explored):
+        print successors(s)
+        for (state, action) in successors(s).items():
+            if state not in explored:
+                explored.add(state)
+                path2 = path + [action, state]
+                yield state, path2
+            else:
+                yield None, None
+                
+    path_list = []
+    explored = set() # set of states we have visited
+    frontier = [ [start] ] # ordered list of paths we have blazed
+    while frontier:
+        path = frontier.pop(0)
+        print "path", path
+        s = path[-1]
+        print "s", s
+        state = list(find_path(s, path, explored))
+        print "state", state
+        if is_goal(state[0]):
+            path_list.append(path2)
+        if state[1] in path_list:
+            break
+        
+        print "path2 to append", state[1]
+        if not None in state[1]:
+            frontier.append(state[1][-1])
+
+    print "path_list", path_list
+    if path_list:
+        return min(path_list, key=len)
+
+    return Fail
+
+    
 
 
 def mc_problem1(start=(3, 3, 1, 0, 0, 0), goal=None):
@@ -92,11 +131,14 @@ def is_goal(state):
         return False
     
 def successors(state):
+    print "state in success", state
     successors = {state + 1: '->',
                   state - 1: '<-'}
     return successors
 
 #test
+print shortest_path_search(5, successors, is_goal)
+print [5, '->', 6, '->', 7, '->', 8]
 assert shortest_path_search(5, successors, is_goal) == [5, '->', 6, '->', 7, '->', 8]
     
 
