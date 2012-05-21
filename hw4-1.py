@@ -13,6 +13,12 @@
 # An action is a tuple of (travelers, arrow), where the arrow is
 # '->' or '<-'. See the test() function below for some examples
 # of what your function's input and output should look like.
+from itertools import chain, combinations
+
+def powerset(iterable):
+    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
 
 def bsuccessors3(state):
     """Return a dict of {state:action} pairs.  State is (here, there, light)
@@ -21,13 +27,13 @@ def bsuccessors3(state):
     Action is a tuple (travelers, arrow) where arrow is '->' or '<-'"""
     here, there, light = state
     if not light:
-        return dict([((here - frozenset([e1]), 
-                 there | frozenset([e1]),
-                 abs(light-1)),(set([e1]), '->')) for e1 in here ])
+        return dict([((here - frozenset(list(e1)), 
+                 there | frozenset(list(e1)),
+                 abs(light-1)),(set(list(e1)), '->')) for e1 in powerset(here) if e1 ])
     else:
-        return dict([((here | frozenset([e1]), 
-                 there - frozenset([e1]),
-                 abs(light-1)),(set([e1]), '<-')) for e1 in there ])
+        return dict([((here | frozenset(list(e1)), 
+                 there - frozenset(list(e1)),
+                 abs(light-1)),(set(list(e1)), '<-')) for e1 in powerset(there) if e1 ])
              
 
 def test():
