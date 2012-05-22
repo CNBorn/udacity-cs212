@@ -38,8 +38,43 @@ def play_pig(A, B):
     Each time through the main loop we ask the current player for one decision,
     which must be 'hold' or 'roll', and we update the state accordingly.
     When one player's score exceeds the goal, return that player."""
-    # your code here
-    
+    turn = 0
+    pending = 0
+    me, you = 0, 0
+    goal = 50
+    while me < goal and you < goal:
+        d = random.randint(1,6)
+        if not turn:
+            action = A((turn, me, you, pending))
+            if action == "roll":
+                _, me, you, pending = roll((turn, me, you, pending), d)
+            else:
+                _, me, you, pending = hold((turn, me, you, pending))
+
+        else:
+            action = B((turn, me, you, pending))
+            if action == "roll":
+                _, me, you, pending = roll((turn, me, you, pending), d)
+            else:
+                _, me, you, pending = hold((turn, me, you, pending))
+
+        turn = 1 if turn == 0 else 0
+    if me == goal:
+        return A
+    else:
+        return B
+
+def strategy(state):
+    x = 20
+    p, me, you, pending = state
+    if p:
+        if pending < x and me+pending < goal:
+            return "roll"
+        return "hold"
+    else:
+        if pending < x and you+pending < goal:
+            return "roll"
+        return "hold"
 
 def always_roll(state):
     return 'roll'
