@@ -14,13 +14,21 @@
 def hold(state):
     """Apply the hold action to a state to yield a new state:
     Reap the 'pending' points and it becomes the other player's turn."""
-    # your code here
+    p, me, you, pending = state
+    if p == 0:
+        return (1, you, me+pending, 0)
+    else:
+        return (0, you, me+pending, 0)
+    
 
 def roll(state, d):
     """Apply the roll action to a state (and a die roll d) to yield a new state:
     If d is 1, get 1 point (losing any accumulated 'pending' points),
     and it is the other player's turn. If d > 1, add d to 'pending' points."""
-    # your code here
+    p, me, you, pending = state
+    if d != 1:
+        return (p, me, you, pending + d)
+    return hold((p, me, you, 1))
     
 def test():    
     assert hold((1, 10, 20, 7))    == (0, 20, 17, 0)
