@@ -46,6 +46,15 @@ def iter_ball(balls):
     wait_in_frame = False
     count_first_in_score = False
     for idx, ball in enumerate(balls):
+        print score, last_ball, wait_in_frame, count_first_in_score
+        if ball == 10 and not wait_in_frame and not count_first_in_score:
+            score += 10
+            wait_in_frame = True
+            count_first_in_score = True
+            last_ball = 0
+            continue
+        #if ball == 10 and wait_in_frame and count_first_in_score:
+            
         if score < 10 and not wait_in_frame and not count_first_in_score:
             score += ball
             wait_in_frame = True
@@ -63,6 +72,26 @@ def iter_ball(balls):
             count_first_in_score = True
             score += ball
             last_ball = ball
+            continue
+        if wait_in_frame and ball == 10:
+            wait_in_frame = False
+            count_first_in_score = True
+            score += ball
+            yield score
+            continue
+        if count_first_in_score and ball == 10 and last_ball == 10:
+            score += ball + 10
+            wait_in_frame = True
+            count_first_in_score = True
+            yield score
+            score = ball
+            continue
+        if count_first_in_score and ball == 10:
+            score += ball
+            wait_in_frame = True
+            count_first_in_score = True
+            yield score
+            score = ball
             continue
         if count_first_in_score:
             score += ball
@@ -125,6 +154,7 @@ def test_bowling():
     assert  80 == bowling([4] * 20)
     print bowling([9,1] * 10 + [9])
     assert 190 == bowling([9,1] * 10 + [9])
+    print bowling([10] * 12)
     assert 300 == bowling([10] * 12)
     assert 200 == bowling([10, 5,5] * 5 + [10])
     assert  11 == bowling([0,0] * 9 + [10,1,0])
