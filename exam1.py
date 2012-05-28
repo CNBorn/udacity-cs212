@@ -32,15 +32,47 @@ For example, bowling([10, 7, 3, ...]) means that you get a strike, you score
 10 + 7 + 3 = 20 in the first frame; the second frame starts with the 7.
 
 """
+from itertools import tee, izip
 
 def bowling(balls):
     "Compute the total score for a player's game of bowling."
     ## bowling([int, ...]) -> int
-    ## your code here
+    def setscore(frame, ball1, ball2, skip_first=False):
+        is_between_frame = True
+        if ball1 + ball2 <= 10:
+            is_between_frame = False
+            score = ball1 + ball2
+        if skip_first:
+            score = ball2
+        return is_between_frame, score
 
+    frame = 1
+    score = 0
+    skip_first = False
+    for ballset in pairwise(balls):
+        print ballset,
+        setball = list(ballset)
+        ball1 = setball[0]
+        ball2 = setball[1]
+        is_between_frame, frame_score = setscore(frame, ball1, ball2, skip_first)
+        if not is_between_frame:
+            frame += 1
+            skip_first = True
+        else:
+            skip_first = False
+        score += frame_score
+    print
+    return score
+
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = tee(iterable)
+    next(b, None)
+    return izip(a, b)
 
 def test_bowling():
     assert   0 == bowling([0] * 20)
+    print bowling([1] * 20)
     assert  20 == bowling([1] * 20)
     assert  80 == bowling([4] * 20)
     assert 190 == bowling([9,1] * 10 + [9])
@@ -49,5 +81,4 @@ def test_bowling():
     assert  11 == bowling([0,0] * 9 + [10,1,0])
     assert  12 == bowling([0,0] * 8 + [10, 1,0])
 
-   
-
+test_bowling()   
