@@ -58,6 +58,15 @@ def poly(coefs):
     '30 * x**2 + 20 * x + 10'.  Also store the coefs on the .coefs attribute of
     the function, and the str of the formula on the .__name__ attribute.'"""
     # your code here (I won't repeat "your code here"; there's one for each function)
+    n_coefs = len(coefs)
+    coefs = list(coefs)
+    coefs.reverse()
+
+    def func(x):
+        return sum([v * x**(n_coefs-i-1) for i, v in enumerate(coefs)])
+    name_list = [(str(v) if v != 1 else '') + ((' * ' if v != 1 else '') + 'x' + ('**%s' % (n_coefs-i-1) if n_coefs-i-1 != 1 else '') if n_coefs-i-1 != 0 else '') if v != 0 else '' for i, v in enumerate(coefs)]
+    func.__name__ = " + ".join([s for s in name_list if s])
+    return func
 
 
 def test_poly():
@@ -111,6 +120,7 @@ def same_name(name1, name2):
 def is_poly(x):
     "Return true if x is a poly (polynomial)."
     ## For examples, see the test_poly function
+    return type(x) == type(poly)
 
 def add(p1, p2):
     "Return a new polynomial which is the sum of polynomials p1 and p2."
@@ -179,3 +189,6 @@ def test_poly2():
     assert Poly('x + 1') * Poly('x - 1') == Poly('x**2 - 1')
 
 
+test_poly()
+test_poly1()
+test_poly2()
