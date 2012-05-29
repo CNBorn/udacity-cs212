@@ -28,10 +28,30 @@ then you would return:
 
 (You can assume that the days mentioned are all in the same week.)
 """
-
-
+import itertools
 def logic_puzzle():
     "Return a list of the names of the people, in the order they arrive."
     ## your code here; you are free to define additional functions if needed
-    
-
+    Monday, Tuesday, Wednesday, Thursday, Friday = xrange(5)
+    for Hamming, Knuth, Minsky, Simon, Wilkes in itertools.permutations(xrange(5)):
+        for writer, manager, designer, Programmer, person in itertools.permutations(xrange(5)):
+            for droid, laptop, iphone, tablet in itertools.permutations(xrange(4)):
+                if Wednesday == laptop and \
+                    Wilkes != Programmer and \
+                    Wilkes in (Programmer, droid) and Hamming in (Programmer, droid) and \
+                    Minsky != writer and \
+                    Knuth != manager and tablet != manager and \
+                    Knuth == manager + 1 and \
+                    Simon == manager and \
+                    designer != Thursday and \
+                    Friday != tablet and \
+                    designer != droid and \
+                    (Wilkes in (Monday, writer) and laptop in (Monday, writer)) and \
+                    Tuesday in (iphone, tablet):
+                    result = {Hamming:"Hamming", Knuth:"Knuth", Minsky:"Minsky", Simon:"Simon", Wilkes:"Wilkes"}
+                    res = []
+                    for x in range(0,5):
+                        res.append(result[x])
+                    return res
+                        
+print logic_puzzle()
