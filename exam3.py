@@ -139,7 +139,23 @@ def is_poly(x):
 
 def add(p1, p2):
     "Return a new polynomial which is the sum of polynomials p1 and p2."
+    indi,shorter,length = (1, p1.raw_coefs,len(p2.coefs)) if len(p1.coefs) < len(p2.coefs) else (2, p2.raw_coefs, len(p1.coefs))
+    print indi, shorter, length
+    shorter_list = list(shorter)
+    shorter_list.extend([0 for i in xrange(length-len(shorter))])
+    shorter = tuple(shorter_list)
+    if indi == 1:
+        remain_opt = p2.raw_coefs
+    else:
+        remain_opt = p1.raw_coefs
 
+    result = []
+    for idx in xrange(len(remain_opt)):
+        result.append(shorter[idx] + remain_opt[idx])
+
+    result = tuple(result)
+    print result
+    return poly(result)
 
 def sub(p1, p2):
     "Return a new polynomial which is the difference of polynomials p1 and p2."
@@ -159,7 +175,6 @@ def mul(p1, p2):
     (0,0,0,1) * (0,0,0,1) = (0,0,0,0,0,0,1)
     (0,0,0,1) * (0,0,0,0,0,0,1) = (0,0,0,0,0,0,0,0,0,1)'''
     
-    print p1.coefs, p2.coefs, target_val
     return poly(target_val)
 
 def power(p, n):
