@@ -72,10 +72,10 @@ def poly(coefs):
     func.coefs = coefs
     func.raw_coefs = raw_coefs
 
-    name_list = [((str(v) if v != 1 else '') + ((' * ' if v != 1 else '') + 'x' + ('**%s' % (n_coefs-i-1) if n_coefs-i-1 != 1 else '') if n_coefs-i-1 != 0 else '') if v != 0 else '') for i, v in enumerate(coefs)]
-    func.__name__ = " + ".join([s for s in name_list if s])
-    #func.__eq__ = lambda self,x:self.__name == x.__name__
-    
+    name_list = [((str(v) if v != 1 else '') + ((' * ' if v != 1 else '') + ('x' if n_coefs-i-1 != 0 else '') + ('**%s' % (n_coefs-i-1) if n_coefs-i-1 != 1 else '') if n_coefs-i-1 != 0 else '') if v != 0 and n_coefs-i-1 != 0 else str(v)) for i, v in enumerate(coefs)]
+    print name_list
+    func.__name__ = " + ".join([s for s in name_list if s and s != "0"])
+
     return func
 
 
@@ -86,12 +86,14 @@ def test_poly():
     assert p1(0) == 10
     for x in (1, 2, 3, 4, 5, 1234.5):
         assert p1(x) == 30 * x**2 + 20 * x + 10
+    print p1
     assert same_name(p1.__name__, '30 * x**2 + 20 * x + 10')
 
     assert is_poly(p1)
     assert not is_poly(abs) and not is_poly(42) and not is_poly('cracker')
 
     p3 = poly((0, 0, 0, 1))
+    print p3
     assert p3.__name__ == 'x**3'
     p9 = mul(p3, mul(p3, p3))
     #print p9, poly([0,0,0,0,0,0,0,0,0,1])
@@ -104,6 +106,7 @@ def test_poly():
     p4 = add(p1, p3)
     assert same_name(p4.__name__, 'x**3 + 30 * x**2 + 20 * x + 10')
 
+    print poly((1,1))
     assert same_name(poly((1, 1)).__name__, 'x + 1')
     assert (power(poly((1, 1)), 10).__name__ == 
             'x**10 + 10 * x**9 + 45 * x**8 + 120 * x**7 + 210 * x**6 + 252 * x**5 + 210' +
@@ -154,7 +157,6 @@ def add(p1, p2):
         result.append(shorter[idx] + remain_opt[idx])
 
     result = tuple(result)
-    print result
     return poly(result)
 
 def sub(p1, p2):
