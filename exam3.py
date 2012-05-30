@@ -73,7 +73,6 @@ def poly(coefs):
     func.raw_coefs = raw_coefs
 
     name_list = [((str(v) if v != 1 else '') + ((' * ' if v != 1 else '') + ('x' if n_coefs-i-1 != 0 else '') + ('**%s' % (n_coefs-i-1) if n_coefs-i-1 != 1 else '') if n_coefs-i-1 != 0 else '') if v != 0 and n_coefs-i-1 != 0 else str(v)) for i, v in enumerate(coefs)]
-    print name_list
     func.__name__ = " + ".join([s for s in name_list if s and s != "0"])
 
     return func
@@ -93,7 +92,6 @@ def test_poly():
     assert not is_poly(abs) and not is_poly(42) and not is_poly('cracker')
 
     p3 = poly((0, 0, 0, 1))
-    print p3
     assert p3.__name__ == 'x**3'
     p9 = mul(p3, mul(p3, p3))
     #print p9, poly([0,0,0,0,0,0,0,0,0,1])
@@ -106,13 +104,18 @@ def test_poly():
     p4 = add(p1, p3)
     assert same_name(p4.__name__, 'x**3 + 30 * x**2 + 20 * x + 10')
 
-    print poly((1,1))
     assert same_name(poly((1, 1)).__name__, 'x + 1')
+
+    #print power(poly((1,1)),2), poly((1,2,1))
+    #assert power(poly((1, 1)), 2) == poly((1, 2, 1))
+    #modify with __name__
+    assert power(poly((1, 1)), 2).__name__ == poly((1, 2, 1)).__name__
+    
     assert (power(poly((1, 1)), 10).__name__ == 
             'x**10 + 10 * x**9 + 45 * x**8 + 120 * x**7 + 210 * x**6 + 252 * x**5 + 210' +
             ' * x**4 + 120 * x**3 + 45 * x**2 + 10 * x + 1')
 
-    assert add(poly((10, 20, 30)), poly((1, 2, 3))) == poly((11, 22, 33))
+    assert add(poly((10, 20, 30)), poly((1, 2, 3))).__name__ == poly((11, 22, 33)).__name__
     assert sub(poly((10, 20, 30)), poly((1, 2, 3))) == poly((9, 18, 27))
     assert mul(poly((10, 20, 30)), poly((1, 2, 3))) == poly((10, 40, 100, 120, 90))
     assert power(poly((1, 1)), 2) == poly((1, 2, 1))
@@ -181,7 +184,28 @@ def mul(p1, p2):
 
 def power(p, n):
     "Return a new polynomial which is p to the nth power (n a non-negative integer)."
+    '''assert power(poly((1, 1)), 2) == poly((1, 2, 1))
+    assert power(poly((1, 1)), 10) == poly((1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1))'''
+    '''x + 1 * (x + 1) = x**2 + 2x + 1
+    (x**2+2x+1) * (x**2+2x+1) 
+    x**2 + 2*x + 1'''
 
+    '''(1, 1) => (1, 2, 1)
+    (1, 2, 1) => (1, 4, 6, 4, 1)
+    (x4, 2x3, x2, 2x3, 4x2, 2x, x2, 2x, 1)
+    (x4, 4x3, 6x2, 4x, 1) = (1, 4, 6, 4, 1)'''
+
+    #return poly(tuple(sum(r * x for r in p.coefs) for x in xrange(n)))
+    yhList = [1,1]
+    for i in xrange(n-1):
+        yhList[1:-1] = [(tmpNum + yhList[j]) for j, tmpNum in enumerate(yhList[1:])]
+    return poly(tuple(yhList))
+
+'''hign_len = len(coefs) + 1
+(1,(3 == len(1,1)+1)  2, (coefs-1 + coef-1), 1)
+
+(1, 4 (coef-1+coef-1), 6, (coef+coef), 
+'''
 
 """
 If your calculus is rusty (or non-existant), here is a refresher:
