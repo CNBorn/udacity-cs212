@@ -117,25 +117,26 @@ def psuccessors(state):
 
     cars = {}
     walls = []
+    cars_pos = []
     for item_name, item_pos in state:
         if item_name not in ["@", "|"]:
             cars.setdefault(item_name, item_pos)
+            cars_pos.extend(item_pos)
         if item_name == "|":
             walls.extend(item_pos)
     #print cars
 
     def legible(car, move):
         legi_use_state = state
-        other_cars_pos = []
-        for carinfo in legi_use_state:
-            if carinfo[0] not in ("@", car) :
-                other_cars_pos.extend(list(carinfo[1]))
+        other_cars_pos = [pos for pos in cars_pos if pos not in cars[car] or pos in walls]
         run_into_wall = any([pos for pos in move if pos in walls])
         #run_into_other_cars = any([pos for pos in move if pos in other_cars_pos])
         #run_into_wall = False
         #return True
-        return not run_into_wall
-            
+        run_into_other_cars = any([m in other_cars_pos for m in move])
+        #return not run_into_other_cars
+        #return not run_into_wall
+        #return not run_into_other_cars   
         return not (run_into_wall or run_into_other_cars)
 
     def get_car_action(car_name, moved_pos):
@@ -145,7 +146,9 @@ def psuccessors(state):
     state_action_pair = {}
     for car, car_pos in cars.iteritems():
 
-        step_moved_pos = [tuple(((p + s) for p in car_pos)) for s in [-1, 1, N, 0-N]]
+        steps = [i*direction for i in range(1,N) for direction in [1,-1]]
+
+        step_moved_pos = [tuple(((p + s) for p in car_pos)) for s in steps]
         fesible_step_moved_pos = [move for move in step_moved_pos if legible(car, move)]
         #print "car %s" % car, fesible_step_moved_pos
 
