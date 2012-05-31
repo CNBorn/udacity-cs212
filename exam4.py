@@ -254,11 +254,9 @@ def is_goal(state):
         if item_name == "*":
             target_car_pos.extend(item_pos)
         if item_name == "@":
-            goal = item_pos
+            goal = item_pos[0]
     return goal in target_car_pos
 
-
-    
 # Here are the shortest_path_search and path_actions functions from the unit.
 # You may use these if you want, but you don't have to.
 
@@ -286,4 +284,4 @@ def path_actions(path):
     "Return a list of actions in this path."
     return path[1::2]
 
-solve_parking_puzzle(puzzle1)
+print path_actions(solve_parking_puzzle(puzzle1))
