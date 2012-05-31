@@ -130,14 +130,17 @@ def psuccessors(state):
         for carinfo in legi_use_state:
             if carinfo[0] not in ("@", car) :
                 other_cars_pos.extend(list(carinfo[1]))
-        #run_into_wall = any([pos for pos in move if pos in walls])
-        run_into_other_cars = any([pos for pos in move if pos in other_cars_pos])
-        run_into_wall = False
+        run_into_wall = any([pos for pos in move if pos in walls])
+        #run_into_other_cars = any([pos for pos in move if pos in other_cars_pos])
+        #run_into_wall = False
+        #return True
+        return not run_into_wall
+            
         return not (run_into_wall or run_into_other_cars)
 
     def get_car_action(car_name, moved_pos):
         origin_pos = cars[car_name]
-        return origin_pos[0] - moved_pos[0]
+        return moved_pos[0] - origin_pos[0]
 
     state_action_pair = {}
     for car, car_pos in cars.iteritems():
@@ -292,3 +295,5 @@ def path_actions(path):
     return path[1::2]
 
 print path_actions(solve_parking_puzzle(puzzle1))
+for r in solve_parking_puzzle(puzzle1)[::2]:
+    print show(r)
