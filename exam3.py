@@ -85,7 +85,6 @@ def test_poly():
     assert p1(0) == 10
     for x in (1, 2, 3, 4, 5, 1234.5):
         assert p1(x) == 30 * x**2 + 20 * x + 10
-    print p1
     assert same_name(p1.__name__, '30 * x**2 + 20 * x + 10')
 
     assert is_poly(p1)
@@ -146,7 +145,6 @@ def is_poly(x):
 def add(p1, p2):
     "Return a new polynomial which is the sum of polynomials p1 and p2."
     indi,shorter,length = (1, p1.raw_coefs,len(p2.coefs)) if len(p1.coefs) < len(p2.coefs) else (2, p2.raw_coefs, len(p1.coefs))
-    print indi, shorter, length
     shorter_list = list(shorter)
     shorter_list.extend([0 for i in xrange(length-len(shorter))])
     shorter = tuple(shorter_list)
