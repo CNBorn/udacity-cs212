@@ -139,6 +139,8 @@ def grid(cars, N=N):
         for s in squares:
             ret[s] = c
 
+    ret[(N-1) + ((N/2)-1) * N] = "@"
+
     ret_dict = {}
     for i, c in enumerate(ret):
         ret_dict.setdefault(c, [])
