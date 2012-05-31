@@ -116,7 +116,7 @@ def solve_parking_puzzle(start, N=N):
 
 def locs(start, n, incr=1):
     "Return a tuple of n locations, starting at start and incrementing by incr."
-
+    return tuple([start + (x)*incr for x in xrange(n)])
 
 def grid(cars, N=N):
     """Return a tuple of (object, locations) pairs -- the format expected for
@@ -126,6 +126,33 @@ def grid(cars, N=N):
     pair, like ('@', (31,)), to indicate this. The variable 'cars'  is a
     tuple of pairs like ('*', (26, 27)). The return result is a big tuple
     of the 'cars' pairs along with the walls and goal pairs."""
+    ret = [x for x in xrange(N*N)]
+    for x in xrange(N):
+        ret[x] = "|"
+        ret[x + N * (N-1)] = "|"
+
+    for x in xrange(1, N-1):
+        ret[x * N] = "|"
+        ret[x * N + N - 1] = "|"
+
+    for (c, squares) in cars:
+        for s in squares:
+            ret[s] = c
+
+    ret_dict = {}
+    for i, c in enumerate(ret):
+        ret_dict.setdefault(c, [])
+        ret_dict[c].append(i)
+
+    result = []
+    for item in ret_dict.iteritems():
+        result.append(item)
+
+    return tuple(result)
+    
+    """0 1 2
+       3 4 5
+       6 7 8"""
 
 
 def show(state, N=N):
@@ -165,7 +192,7 @@ puzzle3 = grid((
     ('O', locs(45, 2, N)),
     ('Y', locs(49, 3))))
 
-
+print show(puzzle1)
 # Here are the shortest_path_search and path_actions functions from the unit.
 # You may use these if you want, but you don't have to.
 
