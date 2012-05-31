@@ -127,23 +127,22 @@ def psuccessors(state):
     #print cars
 
     def has_clear_path(car, move):
-        other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car])]
+        other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car] or pos in walls)]
         
         origin_car_pos = cars[car]
-        target_car_pos = move
-        #print "ac", move, cars[car]
-        moved_range = [get_car_action(car, move) for ori_pos in cars[car]]
-        #print "mr", moved_range
-        one_direction = moved_range[0]
+        one_direction = get_car_action(car, move)
         if one_direction < 0:
             step = -1
         else:
             step = 1
+
         other_car_in_the_path = any([(pos+grid) in other_cars_pos for grid in xrange(0, one_direction, step) for pos in origin_car_pos])
-        #print [(pos+grid) in other_cars_pos for grid in xrange(0, one_direction, step) for pos in origin_car_pos]
-        #other_car_in_the_path = False
         if other_car_in_the_path:
             return False
+
+        #if car == "Y" and one_direction ==3 and not any( [(pos+grid) in other_cars_pos for grid in xrange(0, one_direction, step) for pos in origin_car_pos]):
+        #    print [(pos+grid) in other_cars_pos for grid in xrange(0, one_direction+1, step) for pos in origin_car_pos]
+
         return True
 
     def legible(car, move):
