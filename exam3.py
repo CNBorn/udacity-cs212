@@ -120,9 +120,9 @@ def test_poly():
     assert power(poly((1, 1)), 2).__name__ == poly((1, 2, 1)).__name__
     assert power(poly((1, 1)), 10).__name__ == poly((1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1)).__name__
 
-    print deriv(p1), poly((20, 60))
     assert deriv(p1).__name__ == poly((20, 60)).__name__
-    assert integral(poly((20, 60))) == poly((0, 20, 30))
+    print integral(poly((20,60))), poly((0,20,30))
+    assert integral(poly((20, 60))).__name__ == poly((0, 20, 30)).__name__
     p5 = poly((0, 1, 2, 3, 4, 5))
     assert same_name(p5.__name__, '5 * x**5 + 4 * x**4 + 3 * x**3 + 2 * x**2 + x')
     assert p5(1) == 15
@@ -226,12 +226,18 @@ def deriv(p):
     ret.reverse()
     return poly(tuple(ret))
 
-    #(30,20, 10) -> (60, 20)
-    
 
 def integral(p, C=0):
     "Return the integral of a function p (with respect to its argument)."
-
+    ret = []
+    for idx, coef in enumerate(p.coefs):
+        print idx, len(p.coefs), coef
+        if idx < len(p.coefs):
+            ret.append(coef / (len(p.coefs) - idx))
+        if idx == len(p.coefs) - 1:
+            ret.append(C)
+    ret.reverse()
+    return poly(tuple(ret))
 
 """
 Now for an extra credit challenge: arrange to describe polynomials with an
