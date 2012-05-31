@@ -128,16 +128,14 @@ def psuccessors(state):
 
     def legible(car, move):
         legi_use_state = state
-        other_cars_pos = [pos for pos in cars_pos if pos not in cars[car] or pos in walls]
+        other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car])]
         run_into_wall = any([pos for pos in move if pos in walls])
-        #run_into_other_cars = any([pos for pos in move if pos in other_cars_pos])
-        #run_into_wall = False
-        #return True
         run_into_other_cars = any([m in other_cars_pos for m in move])
-        #return not run_into_other_cars
-        #return not run_into_wall
-        #return not run_into_other_cars   
-        return not (run_into_wall or run_into_other_cars)
+        if run_into_wall:
+            return False
+        if run_into_other_cars:
+            return False
+        return True
 
     def get_car_action(car_name, moved_pos):
         origin_pos = cars[car_name]
