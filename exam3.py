@@ -94,7 +94,7 @@ def test_poly():
     p3 = poly((0, 0, 0, 1))
     assert p3.__name__ == 'x**3'
     p9 = mul(p3, mul(p3, p3))
-    print p9, poly([0,0,0,0,0,0,0,0,0,1])
+
     #assert p9 == poly([0,0,0,0,0,0,0,0,0,1])
     #should passed in grader, as Peter said in
     #http://forums.udacity.com/cs212-april2012/questions/11286/final-3-wrong-assertion
@@ -117,11 +117,9 @@ def test_poly():
 
     assert add(poly((10, 20, 30)), poly((1, 2, 3))).__name__ == poly((11, 22, 33)).__name__
     assert sub(poly((10, 20, 30)), poly((1, 2, 3))).__name__ == poly((9, 18, 27)).__name__
-    print mul(poly((10, 20, 30)), poly((1, 2, 3)))
-    print poly((10, 40, 100, 120, 90))
     assert mul(poly((10, 20, 30)), poly((1, 2, 3))).__name__ == poly((10, 40, 100, 120, 90)).__name__
-    assert power(poly((1, 1)), 2) == poly((1, 2, 1))
-    assert power(poly((1, 1)), 10) == poly((1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1))
+    assert power(poly((1, 1)), 2).__name__ == poly((1, 2, 1)).__name__
+    assert power(poly((1, 1)), 10).__name__ == poly((1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1)).__name__
 
     assert deriv(p1) == poly((20, 60))
     assert integral(poly((20, 60))) == poly((0, 20, 30))
@@ -185,43 +183,22 @@ def sub(p1, p2):
 
 def mul(p1, p2):
     "Return a new polynomial which is the product of polynomials p1 and p2."
-    print "mul"
+
     r = tuple((r1 * r2, i1 + i2) for i1, r1 in enumerate(p1.coefs) for i2, r2 in enumerate(p2.coefs))
     redict = {}
     for item in r:
         coefficient = item[1]
         redict.setdefault(coefficient, 0)
         redict[coefficient] += item[0]
-    print redict
 
     lstret = []
     for kv in redict.iteritems():
         lstret.append(kv)
     lstret.reverse()
     lstret = [r[1] for r in lstret]
-    print tuple(lstret)
+
     return poly(tuple(lstret))
     
-    return poly(tuple(sum(r1 * r2 for r1 in p1.coefs) for r2 in p2.coefs))
-
-    
-    target_str = str(int("".join([str(p) for p in p1.coefs])) * int("".join([str(p) for p in p2.coefs])))
-    target_val = []
-    for char in target_str:
-        target_val.append(int(char))
-    target_val.reverse()
-    target_val = tuple(target_val)
-    
-    '''(0,1) * (0,1) = (0,0,1)
-    (0,0,1) * (0,0,1) = (0,0,0,0,1)
-    (0,0,0,1) * (0,0,0,1) = (0,0,0,0,0,0,1)
-    (0,0,0,1) * (0,0,0,0,0,0,1) = (0,0,0,0,0,0,0,0,0,1)'''
-    '''mul(poly((10, 20, 30)), poly((1, 2, 3)))    poly((10, 40, 100, 120, 90))'''
-    '''10x2, 20x, 30 * x2, 2x, 3 = 10x4 + 20x3 + 30x2 + 20x3 + 60x + 30x2 + 60x + 90
-    a,b,c * d,e,f = a*d, a*e, a*f, b*d, b*e, b*f, c*d, c*e, c*f 
-    10x4  40x3 100x2 120x  90 
-    (10*1, 0+20*2, 20*(2+    , 3*30)
-    return poly(target_val)'''
 
 def power(p, n):
     "Return a new polynomial which is p to the nth power (n a non-negative integer)."
