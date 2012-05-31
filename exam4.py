@@ -109,14 +109,60 @@ def solve_parking_puzzle(start, N=N):
     of (object, locations) pairs).  Return a path of [state, action, ...]
     alternating items; an action is a pair (object, distance_moved),
     such as ('B', 16) to move 'B' two squares down on the N=8 grid."""
-    
+
+
+def psuccessors(state):
+    from copy import deepcopy
+    import itertools
+
+    cars = {}
+    walls = []
+    for item_name, item_pos in state:
+        if item_name not in ["@", "|"]:
+            cars.setdefault(item_name, item_pos)
+        if item_name == "|":
+            walls.extend(item_pos)
+    #print cars
+
+    def legible(move):
+        run_into_wall = any([pos for pos in move if pos in walls])
+        return not run_into_wall
+
+    def get_car_action(car_name, moved_pos):
+        origin_pos = cars[car_name]
+        return origin_pos[0] - moved_pos[0]
+
+    state_action_pair = {}
+    for car, car_pos in cars.iteritems():
+
+        step_moved_pos = [tuple(((p + s) for p in car_pos)) for s in [-1, 1, N, 0-N]]
+        fesible_step_moved_pos = [move for move in step_moved_pos if legible(move)]
+        #print "car %s" % car, fesible_step_moved_pos
+
+        def get_new_state_with_car_move(car_name, moved_pos):
+            ret_state = list(state)
+            ret = []
+            for s_car_name, pos in ret_state:
+                if s_car_name != car_name:
+                    ret.append((s_car_name, pos))
+                else:
+                    ret.append((car_name, moved_pos))
+            return tuple(ret)
+
+        #return {state:action} pair
+        for step in fesible_step_moved_pos:
+            state_action_pair.setdefault(get_new_state_with_car_move(car, step), (car, get_car_action(car, step)))
+        
+    return state_action_pair
+
+
 # But it would also be nice to have a simpler format to describe puzzles,
 # and a way to visualize states.
 # You will do that by defining the following two functions:
 
 def locs(start, n, incr=1):
     "Return a tuple of n locations, starting at start and incrementing by incr."
-    return tuple([start + (x)*incr for x in xrange(n)])
+    return tuple(tuple((start + (x)*incr for x in xrange(n))))
 
 def grid(cars, N=N):
     """Return a tuple of (object, locations) pairs -- the format expected for
@@ -148,8 +194,8 @@ def grid(cars, N=N):
             ret_dict[c].append(i)
 
     result = []
-    for item in ret_dict.iteritems():
-        result.append(item)
+    for k,v in ret_dict.iteritems():
+        result.append((k,tuple(v)))
 
     return tuple(result)
     
@@ -197,6 +243,12 @@ puzzle3 = grid((
 
 print puzzle1 
 print show(puzzle1)
+#print psuccessors(puzzle1)
+for state, action in psuccessors(puzzle1).iteritems():
+    print state
+    print action
+    
+
 # Here are the shortest_path_search and path_actions functions from the unit.
 # You may use these if you want, but you don't have to.
 
