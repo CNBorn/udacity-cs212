@@ -109,7 +109,7 @@ def solve_parking_puzzle(start, N=N):
     of (object, locations) pairs).  Return a path of [state, action, ...]
     alternating items; an action is a pair (object, distance_moved),
     such as ('B', 16) to move 'B' two squares down on the N=8 grid."""
-
+    return shortest_path_search(start, psuccessors, is_goal)
 
 def psuccessors(state):
     from copy import deepcopy
@@ -248,7 +248,17 @@ for state, action in psuccessors(puzzle1).iteritems():
     print state
     print action
     
+def is_goal(state):
+    target_car_pos = []
+    for item_name, item_pos in state:
+        if item_name == "*":
+            target_car_pos.extend(item_pos)
+        if item_name == "@":
+            goal = item_pos
+    return goal in target_car_pos
 
+
+    
 # Here are the shortest_path_search and path_actions functions from the unit.
 # You may use these if you want, but you don't have to.
 
@@ -276,3 +286,4 @@ def path_actions(path):
     "Return a list of actions in this path."
     return path[1::2]
 
+solve_parking_puzzle(puzzle1)
