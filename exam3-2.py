@@ -51,6 +51,7 @@ Your task is to write the function poly and the following additional functions:
 They are described below; see the test_poly function for examples.
 """
 
+from copy import deepcopy
 
 def poly(coefs):
     """Return a function that represents the polynomial with these coefficients.
@@ -69,7 +70,9 @@ def poly(coefs):
             return obj.__name__ == self.__name__
         return sum([v * x**(n_coefs-i-1) for i, v in enumerate(coefs)])
 
-    func.coefs = coefs
+    to_be_func_coefs = deepcopy(coefs)
+    to_be_func_coefs.reverse()
+    func.coefs = tuple(to_be_func_coefs)
     func.raw_coefs = raw_coefs
 
     name_list = [((str(v) if v != 1 else '') + ((' * ' if v != 1 else '') + ('x' if n_coefs-i-1 != 0 else '') + ('**%s' % (n_coefs-i-1) if n_coefs-i-1 != 1 else '') if n_coefs-i-1 != 0 else '') if v != 0 and n_coefs-i-1 != 0 else str(v)) for i, v in enumerate(coefs)]
@@ -93,6 +96,7 @@ def test_poly():
     p3 = poly((0, 0, 0, 1))
     assert p3.__name__ == 'x**3'
     p9 = mul(p3, mul(p3, p3))
+    print p9, 
     assert p9(2) == 512
     p4 =  add(p1, p3)
     assert same_name(p4.__name__, 'x**3 + 30 * x**2 + 20 * x + 10')
@@ -108,6 +112,7 @@ def test_poly():
     assert power(poly((1, 1)), 2).coefs == (1, 2, 1) 
     assert power(poly((1, 1)), 10).coefs == (1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1)
 
+    print deriv(p1).coefs, (20, 60)
     assert deriv(p1).coefs == (20, 60)
     assert integral(poly((20, 60))).coefs == (0, 20, 30)
     p5 = poly((0, 1, 2, 3, 4, 5))
@@ -184,7 +189,7 @@ def mul(p1, p2):
     lstret = []
     for kv in redict.iteritems():
         lstret.append(kv)
-    lstret.reverse()
+
     lstret = [r[1] for r in lstret]
 
     return poly(tuple(lstret))
@@ -214,7 +219,10 @@ to the function integral (withh default C=0).
 def deriv(p):
     "Return the derivative of a function p (with respect to its argument)."
     ret = []
-    for idx, coef in enumerate(p.coefs[:-1], 1):
+    o_coefs = list(p.coefs)
+    o_coefs.reverse()
+    for idx, coef in enumerate(o_coefs[:-1], 1):
+        print idx, coef, len(p.coefs)
         ret.append(((len(p.coefs) - idx) * coef))
     ret.reverse()
     return poly(tuple(ret))
@@ -223,7 +231,9 @@ def deriv(p):
 def integral(p, C=0):
     "Return the integral of a function p (with respect to its argument)."
     ret = []
-    for idx, coef in enumerate(p.coefs):
+    o_coefs = list(p.coefs)
+    o_coefs.reverse()
+    for idx, coef in enumerate(o_coefs):
         print idx, len(p.coefs), coef
         if idx < len(p.coefs):
             ret.append(coef / (len(p.coefs) - idx))
