@@ -126,9 +126,33 @@ def psuccessors(state):
             walls.extend(item_pos)
     #print cars
 
+    def has_clear_path(car, move):
+        other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car])]
+        
+        origin_car_pos = cars[car]
+        target_car_pos = move
+        #print "ac", move, cars[car]
+        moved_range = [get_car_action(car, move) for ori_pos in cars[car]]
+        #print "mr", moved_range
+        one_direction = moved_range[0]
+        if one_direction < 0:
+            step = -1
+        else:
+            step = 1
+        other_car_in_the_path = any([(pos+grid) in other_cars_pos for grid in xrange(0, one_direction, step) for pos in origin_car_pos])
+        #print [(pos+grid) in other_cars_pos for grid in xrange(0, one_direction, step) for pos in origin_car_pos]
+        #other_car_in_the_path = False
+        if other_car_in_the_path:
+            return False
+        return True
+
     def legible(car, move):
         legi_use_state = state
         other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car])]
+
+        if not has_clear_path(car, move):
+            return False
+        
         run_into_wall = any([pos for pos in move if pos in walls])
         run_into_other_cars = any([m in other_cars_pos for m in move])
         if run_into_wall:
