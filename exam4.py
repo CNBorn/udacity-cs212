@@ -143,8 +143,9 @@ def grid(cars, N=N):
 
     ret_dict = {}
     for i, c in enumerate(ret):
-        ret_dict.setdefault(c, [])
-        ret_dict[c].append(i)
+        if not str(c).isdigit():
+            ret_dict.setdefault(c, [])
+            ret_dict[c].append(i)
 
     result = []
     for item in ret_dict.iteritems():
@@ -194,6 +195,7 @@ puzzle3 = grid((
     ('O', locs(45, 2, N)),
     ('Y', locs(49, 3))))
 
+print puzzle1 
 print show(puzzle1)
 # Here are the shortest_path_search and path_actions functions from the unit.
 # You may use these if you want, but you don't have to.
