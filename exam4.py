@@ -124,9 +124,16 @@ def psuccessors(state):
             walls.extend(item_pos)
     #print cars
 
-    def legible(move):
-        run_into_wall = any([pos for pos in move if pos in walls])
-        return not run_into_wall
+    def legible(car, move):
+        legi_use_state = state
+        other_cars_pos = []
+        for carinfo in legi_use_state:
+            if carinfo[0] not in ("@", car) :
+                other_cars_pos.extend(list(carinfo[1]))
+        #run_into_wall = any([pos for pos in move if pos in walls])
+        run_into_other_cars = any([pos for pos in move if pos in other_cars_pos])
+        run_into_wall = False
+        return not (run_into_wall or run_into_other_cars)
 
     def get_car_action(car_name, moved_pos):
         origin_pos = cars[car_name]
@@ -136,7 +143,7 @@ def psuccessors(state):
     for car, car_pos in cars.iteritems():
 
         step_moved_pos = [tuple(((p + s) for p in car_pos)) for s in [-1, 1, N, 0-N]]
-        fesible_step_moved_pos = [move for move in step_moved_pos if legible(move)]
+        fesible_step_moved_pos = [move for move in step_moved_pos if legible(car, move)]
         #print "car %s" % car, fesible_step_moved_pos
 
         def get_new_state_with_car_move(car_name, moved_pos):
