@@ -94,7 +94,7 @@ def test_poly():
     p3 = poly((0, 0, 0, 1))
     assert p3.__name__ == 'x**3'
     p9 = mul(p3, mul(p3, p3))
-    #print p9, poly([0,0,0,0,0,0,0,0,0,1])
+    print p9, poly([0,0,0,0,0,0,0,0,0,1])
     #assert p9 == poly([0,0,0,0,0,0,0,0,0,1])
     #should passed in grader, as Peter said in
     #http://forums.udacity.com/cs212-april2012/questions/11286/final-3-wrong-assertion
@@ -116,8 +116,10 @@ def test_poly():
             ' * x**4 + 120 * x**3 + 45 * x**2 + 10 * x + 1')
 
     assert add(poly((10, 20, 30)), poly((1, 2, 3))).__name__ == poly((11, 22, 33)).__name__
-    assert sub(poly((10, 20, 30)), poly((1, 2, 3))) == poly((9, 18, 27))
-    assert mul(poly((10, 20, 30)), poly((1, 2, 3))) == poly((10, 40, 100, 120, 90))
+    assert sub(poly((10, 20, 30)), poly((1, 2, 3))).__name__ == poly((9, 18, 27)).__name__
+    print mul(poly((10, 20, 30)), poly((1, 2, 3)))
+    print poly((10, 40, 100, 120, 90))
+    assert mul(poly((10, 20, 30)), poly((1, 2, 3))).__name__ == poly((10, 40, 100, 120, 90)).__name__
     assert power(poly((1, 1)), 2) == poly((1, 2, 1))
     assert power(poly((1, 1)), 10) == poly((1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1))
 
@@ -164,10 +166,45 @@ def add(p1, p2):
 
 def sub(p1, p2):
     "Return a new polynomial which is the difference of polynomials p1 and p2."
+    indi,shorter,length = (1, p1.raw_coefs,len(p2.coefs)) if len(p1.coefs) < len(p2.coefs) else (2, p2.raw_coefs, len(p1.coefs))
+    shorter_list = list(shorter)
+    shorter_list.extend([0 for i in xrange(length-len(shorter))])
+    shorter = tuple(shorter_list)
+    if indi == 1:
+        remain_opt = p2.raw_coefs
+    else:
+        remain_opt = p1.raw_coefs
+
+    result = []
+    for idx in xrange(len(remain_opt)):
+        result.append(remain_opt[idx] - shorter[idx])
+
+    result = tuple(result)
+    return poly(result)
 
 
 def mul(p1, p2):
     "Return a new polynomial which is the product of polynomials p1 and p2."
+    print "mul"
+    r = tuple((r1 * r2, i1 + i2) for i1, r1 in enumerate(p1.coefs) for i2, r2 in enumerate(p2.coefs))
+    redict = {}
+    for item in r:
+        coefficient = item[1]
+        redict.setdefault(coefficient, 0)
+        redict[coefficient] += item[0]
+    print redict
+
+    lstret = []
+    for kv in redict.iteritems():
+        lstret.append(kv)
+    lstret.reverse()
+    lstret = [r[1] for r in lstret]
+    print tuple(lstret)
+    return poly(tuple(lstret))
+    
+    return poly(tuple(sum(r1 * r2 for r1 in p1.coefs) for r2 in p2.coefs))
+
+    
     target_str = str(int("".join([str(p) for p in p1.coefs])) * int("".join([str(p) for p in p2.coefs])))
     target_val = []
     for char in target_str:
@@ -179,33 +216,19 @@ def mul(p1, p2):
     (0,0,1) * (0,0,1) = (0,0,0,0,1)
     (0,0,0,1) * (0,0,0,1) = (0,0,0,0,0,0,1)
     (0,0,0,1) * (0,0,0,0,0,0,1) = (0,0,0,0,0,0,0,0,0,1)'''
-    
-    return poly(target_val)
+    '''mul(poly((10, 20, 30)), poly((1, 2, 3)))    poly((10, 40, 100, 120, 90))'''
+    '''10x2, 20x, 30 * x2, 2x, 3 = 10x4 + 20x3 + 30x2 + 20x3 + 60x + 30x2 + 60x + 90
+    a,b,c * d,e,f = a*d, a*e, a*f, b*d, b*e, b*f, c*d, c*e, c*f 
+    10x4  40x3 100x2 120x  90 
+    (10*1, 0+20*2, 20*(2+    , 3*30)
+    return poly(target_val)'''
 
 def power(p, n):
     "Return a new polynomial which is p to the nth power (n a non-negative integer)."
-    '''assert power(poly((1, 1)), 2) == poly((1, 2, 1))
-    assert power(poly((1, 1)), 10) == poly((1, 10, 45, 120, 210, 252, 210, 120, 45, 10, 1))'''
-    '''x + 1 * (x + 1) = x**2 + 2x + 1
-    (x**2+2x+1) * (x**2+2x+1) 
-    x**2 + 2*x + 1'''
-
-    '''(1, 1) => (1, 2, 1)
-    (1, 2, 1) => (1, 4, 6, 4, 1)
-    (x4, 2x3, x2, 2x3, 4x2, 2x, x2, 2x, 1)
-    (x4, 4x3, 6x2, 4x, 1) = (1, 4, 6, 4, 1)'''
-
-    #return poly(tuple(sum(r * x for r in p.coefs) for x in xrange(n)))
     yhList = [1,1]
     for i in xrange(n-1):
         yhList[1:-1] = [(tmpNum + yhList[j]) for j, tmpNum in enumerate(yhList[1:])]
     return poly(tuple(yhList))
-
-'''hign_len = len(coefs) + 1
-(1,(3 == len(1,1)+1)  2, (coefs-1 + coef-1), 1)
-
-(1, 4 (coef-1+coef-1), 6, (coef+coef), 
-'''
 
 """
 If your calculus is rusty (or non-existant), here is a refresher:
