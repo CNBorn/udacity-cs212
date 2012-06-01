@@ -131,12 +131,16 @@ def psuccessors(state):
         
         origin_car_pos = cars[car]
         one_direction = get_car_action(car, move)
-        if one_direction < 0:
-            step = -1
+        if one_direction % N == 0:
+            step_unit = 8
         else:
-            step = 1
+            step_unit = 1
+        if one_direction < 0:
+            step = 0-step_unit
+        else:
+            step = step_unit
 
-        other_car_in_the_path = any([(pos+grid) in other_cars_pos for grid in xrange(0, one_direction, step) for pos in origin_car_pos])
+        other_car_in_the_path = any([(pos+grid) in other_cars_pos for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos])
         if other_car_in_the_path:
             return False
 
@@ -146,18 +150,19 @@ def psuccessors(state):
         return True
 
     def legible(car, move):
-        legi_use_state = state
-        other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car])]
 
         if not has_clear_path(car, move):
             return False
         
         run_into_wall = any([pos for pos in move if pos in walls])
-        run_into_other_cars = any([m in other_cars_pos for m in move])
         if run_into_wall:
             return False
+        
+        other_cars_pos = (pos for pos in cars_pos if (pos not in cars[car]))
+        run_into_other_cars = any([m in other_cars_pos for m in move])
         if run_into_other_cars:
             return False
+
         return True
 
     def get_car_action(car_name, moved_pos):
@@ -167,7 +172,10 @@ def psuccessors(state):
     state_action_pair = {}
     for car, car_pos in cars.iteritems():
 
-        steps = [i*direction for i in range(1,N) for direction in [1,-1]]
+        #Only +-(N-car_pos) - 2, +-N*(N-1)
+        steps = [i*direction for i in range(1,N-1) for direction in [1,-1]]
+        step_v = [i*direction for i in range(N, N*(N-1-2), N) for direction in [1, -1]]
+        steps.extend(step_v)
 
         step_moved_pos = [tuple(((p + s) for p in car_pos)) for s in steps]
         fesible_step_moved_pos = [move for move in step_moved_pos if legible(car, move)]
