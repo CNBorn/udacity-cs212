@@ -126,9 +126,13 @@ def psuccessors(state):
             walls.extend(item_pos)
     #print cars
 
+    def get_other_car_pos(car):
+        other_cars_pos = (pos for pos in cars_pos if (pos not in cars[car] or pos in walls))
+        return other_cars_pos
+
     def has_clear_path(car, move):
-        other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car] or pos in walls)]
-        
+        #other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car] or pos in walls)] #bottle neck?
+
         origin_car_pos = cars[car]
         one_direction = get_car_action(car, move)
         if one_direction % N == 0:
@@ -140,12 +144,9 @@ def psuccessors(state):
         else:
             step = step_unit
 
-        other_car_in_the_path = any([(pos+grid) in other_cars_pos for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos])
+        other_car_in_the_path = any(((pos+grid) in get_other_car_pos(car) for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos))
         if other_car_in_the_path:
             return False
-
-        #if car == "Y" and one_direction ==3 and not any( [(pos+grid) in other_cars_pos for grid in xrange(0, one_direction, step) for pos in origin_car_pos]):
-        #    print [(pos+grid) in other_cars_pos for grid in xrange(0, one_direction+1, step) for pos in origin_car_pos]
 
         return True
 
@@ -154,12 +155,12 @@ def psuccessors(state):
         if not has_clear_path(car, move):
             return False
         
-        run_into_wall = any([pos for pos in move if pos in walls])
+        run_into_wall = any((pos for pos in move if pos in walls))
         if run_into_wall:
             return False
         
         other_cars_pos = (pos for pos in cars_pos if (pos not in cars[car]))
-        run_into_other_cars = any([m in other_cars_pos for m in move])
+        run_into_other_cars = any((m in other_cars_pos for m in move))
         if run_into_other_cars:
             return False
 
