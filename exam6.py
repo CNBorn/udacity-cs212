@@ -62,7 +62,7 @@ def common_part(word1, word2):
 
     def get_common_part(start_pos1, start_pos2, word1, word2):
         debug = False
-        if word1 == "perspicacity" and word2== "cityslicker":
+        if word1 == "dog" and word2== "dogs":
             debug = True
             
         word1_remain_length = len(word1) - start_pos1
@@ -106,7 +106,8 @@ def word_score(word1, word2):
         except IndexError:
             return 0
         start_str = word1[:len(word1)-len(mid_str)]
-
+        if not start_str:
+            return 0
         #print "-", start_str, mid_str, end_str
 
         the_word = start_str + mid_str + end_str
