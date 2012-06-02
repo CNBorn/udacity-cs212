@@ -62,13 +62,13 @@ def common_part(word1, word2):
 
     def get_common_part(start_pos1, start_pos2, word1, word2):
         debug = False
-        if word1 == "dog" and word2== "dogs":
+        if word1 == "morass" and word2== "assassination":
             debug = True
             
         word1_remain_length = len(word1) - start_pos1
         word2_remain_length = len(word2) - start_pos2
         #end_same_pos1 = 0
-        end_same_pos2 = word1_remain_length+1
+        end_same_pos2 = word1_remain_length
         same_word_break = False
         for add_pos in xrange(min([word1_remain_length, word2_remain_length])):
 
@@ -79,15 +79,16 @@ def common_part(word1, word2):
                 end_same_pos2 = start_pos2+add_pos
                 break
 
-        seems_common_part = word2[:end_same_pos2]
-        if debug:
-            print seems_common_part, word1, word2, start_pos1, start_pos2
+        seems_common_part = word2[:end_same_pos2] if end_same_pos2 != 0 else word2[:1]
             
-        return seems_common_part if seems_common_part and seems_common_part in word1 and seems_common_part[-1] == word1[-1] else ""
+        res =  seems_common_part if seems_common_part and seems_common_part in word1 and (seems_common_part[-1] == word1[-1] if len(seems_common_part) != 1 else seems_common_part == word1[-1]) and seems_common_part == word1[0-len(seems_common_part):] else ""
+        if debug:
+            print seems_common_part, word1, word2, start_pos1, start_pos2, res
+        return res
     
     result = [get_common_part(word1.index(w, i1), word2.index(w2, i2), word1, word2) for i1, w in enumerate(word1) for i2, w2 in enumerate(word2) if w==w2]
-    result = list(set([r for r in result if r and len(r) > 2]))
-    #print word1, word2, result
+    result = list(set([r for r in result if r]))
+    print word1, word2, result
     return result
 
 def word_score(word1, word2):
@@ -108,7 +109,7 @@ def word_score(word1, word2):
         start_str = word1[:len(word1)-len(mid_str)]
         if not start_str:
             return 0
-        #print "-", start_str, mid_str, end_str
+        print "-", start_str, mid_str, end_str
 
         the_word = start_str + mid_str + end_str
         ideal_start_pos = len(the_word) / 4
@@ -118,6 +119,7 @@ def word_score(word1, word2):
         result.append((word_score, the_word))
 
     result.sort(key=lambda x:x)
+    print "result", result
     return result
 
 def natalie(words):
@@ -126,7 +128,9 @@ def natalie(words):
     word_list = itertools.chain.from_iterable([word_score(word1, word2) for (word1, word2) in word_pairs if word_score(word1, word2)])
     result = list(word_list)
     highest_score = max(result)[0] if result else 0
+    print highest_score
     r =  [word for score, word in result if score == highest_score]
+    print "r",r
     return r[0] if r else None
 
 def test_natalie():
@@ -148,6 +152,9 @@ def test_natalie():
     assert natalie(['']) ==  None
     assert natalie(['ABC', '123']) == None
     assert natalie([]) == None
+
+    assert natalie(['freud', 'mormons', 'dianetics', 'shinrikyo', 'jonestown', 'moonies']) != None
+    
     return 'tests pass'
 
 
