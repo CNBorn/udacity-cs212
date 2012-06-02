@@ -61,6 +61,10 @@ import itertools
 def common_part(word1, word2):
 
     def get_common_part(start_pos1, start_pos2, word1, word2):
+        debug = False
+        if word1 == "programmer":
+            debug = True
+            
         word1_remain_length = len(word1) - start_pos1
         word2_remain_length = len(word2) - start_pos2
         #end_same_pos1 = 0
@@ -74,7 +78,12 @@ def common_part(word1, word2):
                 #end_same_pos1 = start_pos1+add_pos
                 end_same_pos2 = start_pos2+add_pos
                 break
-        return word2[:end_same_pos2-1] if word2[:end_same_pos2-1] and word2[:end_same_pos2-1] in word1 and (word2[:end_same_pos2-1][-1] == word1[-1] if word2 and word1 else True) else ""
+
+        seems_common_part = word2[:end_same_pos2]
+        if debug:
+            print seems_common_part, word1, word2
+
+        return seems_common_part if seems_common_part and seems_common_part in word1 and seems_common_part[-1] == word1[-1] else ""
     
     result = [get_common_part(word1.index(w), word2.index(w2), word1, word2) for w in word1 for w2 in word2 if w==w2]
     result = list(set([r for r in result if r and len(r) > 2]))
@@ -98,7 +107,7 @@ def word_score(word1, word2):
             return 0
         start_str = word1[:len(word1)-len(mid_str)]
 
-        print "-", start_str, mid_str, end_str
+        #print "-", start_str, mid_str, end_str
 
         the_word = start_str + mid_str + end_str
         ideal_start_pos = len(the_word) / 4
