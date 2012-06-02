@@ -63,7 +63,7 @@ def common_part(word1, word2):
     def get_common_part(start_pos1, start_pos2, word1, word2):
         word1_remain_length = len(word1) - start_pos1
         word2_remain_length = len(word2) - start_pos2
-        end_same_pos1 = len(word1)-1
+        #end_same_pos1 = 0
         end_same_pos2 = word1_remain_length+1
         same_word_break = False
         for add_pos in xrange(min([word1_remain_length, word2_remain_length])):
@@ -71,10 +71,11 @@ def common_part(word1, word2):
             if word1[start_pos1+add_pos] == word2[start_pos2+add_pos]:
                 continue
             else:
-                end_same_pos1 = start_pos1+add_pos
+                #end_same_pos1 = start_pos1+add_pos
                 end_same_pos2 = start_pos2+add_pos
                 break
-        return word2[:end_same_pos2-1] if word2[:end_same_pos2-1] in word1 else ""
+        print word2[:end_same_pos2-1], word1
+        return word2[:end_same_pos2-1] if word2[:end_same_pos2-1] and word2[:end_same_pos2-1] in word1 and (word2[:end_same_pos2-1][-1] == word1[-1] if word2 and word1 else True) else ""
     
     result = [get_common_part(word1.index(w), word2.index(w2), word1, word2) for w in word1 for w2 in word2 if w==w2]
     result = list(set([r for r in result if r and len(r) > 2]))
