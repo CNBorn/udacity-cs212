@@ -64,7 +64,7 @@ def common_part(word1, word2):
         word1_remain_length = len(word1) - start_pos1
         word2_remain_length = len(word2) - start_pos2
         end_same_pos1 = len(word1)-1
-        end_same_pos2 = len(word2)-1
+        end_same_pos2 = word1_remain_length+1
         same_word_break = False
         for add_pos in xrange(min([word1_remain_length, word2_remain_length])):
 
@@ -74,10 +74,11 @@ def common_part(word1, word2):
                 end_same_pos1 = start_pos1+add_pos
                 end_same_pos2 = start_pos2+add_pos
                 break
-        return word2[:end_same_pos2-1] 
+        return word2[:end_same_pos2-1] if word2[:end_same_pos2-1] in word1 else ""
     
     result = [get_common_part(word1.index(w), word2.index(w2), word1, word2) for w in word1 for w2 in word2 if w==w2]
     result = list(set([r for r in result if r and len(r) > 2]))
+    print word1, word2, result
     return result
 
 def word_score(word1, word2):
@@ -88,6 +89,7 @@ def word_score(word1, word2):
     #print mid_strs
 
     if not mid_strs: return 0
+    result = []
 
     for mid_str in mid_strs:
         try:
@@ -99,7 +101,13 @@ def word_score(word1, word2):
         print "-", start_str, mid_str, end_str
 
         the_word = start_str + mid_str + end_str
-    return len(word1+word2)
+        ideal_start_pos = len(the_word) / 4
+        ideal_mid_pos = len(the_word) / 2
+
+        word_score = len(the_word) - abs(len(start_str) - ideal_start_pos) - abs(len(mid_str) - ideal_mid_pos) - abs(len(end_str) - ideal_start_pos)
+        result.append((word_score, the_word))
+        
+    return result
 
 def natalie(words):
     "Find the best Portmanteau word formed from any two of the list of words."
