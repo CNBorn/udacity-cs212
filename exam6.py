@@ -62,7 +62,7 @@ def common_part(word1, word2):
 
     def get_common_part(start_pos1, start_pos2, word1, word2):
         debug = False
-        if word1 == "programmer":
+        if word1 == "perspicacity" and word2== "cityslicker":
             debug = True
             
         word1_remain_length = len(word1) - start_pos1
@@ -81,11 +81,11 @@ def common_part(word1, word2):
 
         seems_common_part = word2[:end_same_pos2]
         if debug:
-            print seems_common_part, word1, word2
-
+            print seems_common_part, word1, word2, start_pos1, start_pos2
+            
         return seems_common_part if seems_common_part and seems_common_part in word1 and seems_common_part[-1] == word1[-1] else ""
     
-    result = [get_common_part(word1.index(w), word2.index(w2), word1, word2) for w in word1 for w2 in word2 if w==w2]
+    result = [get_common_part(word1.index(w, i1), word2.index(w2, i2), word1, word2) for i1, w in enumerate(word1) for i2, w2 in enumerate(word2) if w==w2]
     result = list(set([r for r in result if r and len(r) > 2]))
     #print word1, word2, result
     return result
