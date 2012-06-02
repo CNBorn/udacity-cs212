@@ -74,12 +74,11 @@ def common_part(word1, word2):
                 #end_same_pos1 = start_pos1+add_pos
                 end_same_pos2 = start_pos2+add_pos
                 break
-        print word2[:end_same_pos2-1], word1
         return word2[:end_same_pos2-1] if word2[:end_same_pos2-1] and word2[:end_same_pos2-1] in word1 and (word2[:end_same_pos2-1][-1] == word1[-1] if word2 and word1 else True) else ""
     
     result = [get_common_part(word1.index(w), word2.index(w2), word1, word2) for w in word1 for w2 in word2 if w==w2]
     result = list(set([r for r in result if r and len(r) > 2]))
-    print word1, word2, result
+    #print word1, word2, result
     return result
 
 def word_score(word1, word2):
@@ -107,14 +106,18 @@ def word_score(word1, word2):
 
         word_score = len(the_word) - abs(len(start_str) - ideal_start_pos) - abs(len(mid_str) - ideal_mid_pos) - abs(len(end_str) - ideal_start_pos)
         result.append((word_score, the_word))
-        
+
+    result.sort(key=lambda x:x)
     return result
 
 def natalie(words):
     "Find the best Portmanteau word formed from any two of the list of words."
     word_pairs = itertools.permutations(words, 2)
-    word_list = [word_score(word1, word2) for (word1, word2) in word_pairs]
-    print word_list
+    word_list = itertools.chain.from_iterable([word_score(word1, word2) for (word1, word2) in word_pairs if word_score(word1, word2)])
+    result = list(word_list)
+    highest_score = max(result)[0] if result else 0
+    r =  [word for score, word in result if score == highest_score]
+    return r[0] if r else None
 
 def test_natalie():
     "Some test cases for natalie"
