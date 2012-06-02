@@ -51,8 +51,58 @@ input words. But you could implement a method that is efficient with a
 larger list of words.
 """
 
+"""itertools.combination
+find that have common parts
+countteir score
+"""
+
+import itertools
+
+def is_valid_word_pair(word1, word2):
+    return word2 in word1 or word1 in word2
+
+def common_part(word1, word2):
+
+    def get_common_part(start_pos1, start_pos2, word1, word2):
+        word1_remain_length = len(word1) - start_pos1
+        word2_remain_length = len(word2) - start_pos2
+        end_same_pos1 = 0
+        end_same_pos2 = 0
+        same_word_break = False
+        for add_pos in xrange(min([word1_remain_length, word2_remain_length])):
+
+            if word1[start_pos1+add_pos] == word2[start_pos2+add_pos]:
+                continue
+            else:
+                end_same_pos1 = start_pos1+add_pos
+                end_same_pos2 = start_pos2+add_pos
+                break
+
+        return word1[start_pos1-1:end_same_pos1-1] 
+    
+    result = [get_common_part(word1.index(w), word2.index(w2), word1, word2) for w in word1 for w2 in word2 if w==w2]
+    result = list(set([r for r in result if r and len(r) > 2]))
+    return result
+
+def word_score(word1, word2):
+    start = len(word1)
+    mid_str = common_part(word1, word2)
+    print mid_str
+
+    try:
+        end_str = word2[len(mid_str)-1:]
+    except IndexError:
+        return 0
+    start_str = word1[:len(word1)-len(mid_str)]
+    #print "-", start_str, mid_str, end_str
+    #print word1, word2
+    return len(word1+word2)
+
 def natalie(words):
     "Find the best Portmanteau word formed from any two of the list of words."
+    word_pairs = itertools.permutations(words, 2)
+    word_list = [word_score(word1, word2) for (word1, word2) in word_pairs]
+    print word_list
 
 def test_natalie():
     "Some test cases for natalie"
