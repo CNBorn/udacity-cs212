@@ -118,23 +118,25 @@ def psuccessors(state):
     cars = {}
     walls = []
     cars_pos = []
+    other_car_pos = {}
     for item_name, item_pos in state:
         if item_name not in ["@", "|"]:
             cars.setdefault(item_name, item_pos)
             cars_pos.extend(item_pos)
         if item_name == "|":
             walls.extend(item_pos)
-    #print cars
 
-    def get_other_car_pos(car):
-        other_cars_pos = (pos for pos in cars_pos if (pos not in cars[car] or pos in walls))
-        return other_cars_pos
+    for car_name, car_pos in state:
+        if car_name not in ["@", "|"]:
+            other_car_pos.setdefault(car_name, [pos for pos in cars_pos if (pos not in cars[car_name] and pos not in walls)])
+    #print cars
 
     def has_clear_path(car, move):
         #other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car] or pos in walls)] #bottle neck?
 
         origin_car_pos = cars[car]
         one_direction = get_car_action(car, move)
+
         if one_direction % N == 0:
             step_unit = 8
         else:
@@ -144,7 +146,7 @@ def psuccessors(state):
         else:
             step = step_unit
 
-        other_car_in_the_path = any(((pos+grid) in get_other_car_pos(car) for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos))
+        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos))
         if other_car_in_the_path:
             return False
 
@@ -178,7 +180,9 @@ def psuccessors(state):
         step_v = [i*direction for i in range(N, N*(N-1-2), N) for direction in [1, -1]]
         steps.extend(step_v)
 
-        step_moved_pos = [tuple(((p + s) for p in car_pos)) for s in steps]
+        step_moved_pos = [tuple(((p + s) for p in car_pos if p+s not in other_car_pos[car] and p+s not in walls)) for s in steps]
+        step_moved_pos = [s for s in step_moved_pos if s]
+        #print "car %s step_moved_pos" % car, step_moved_pos
         fesible_step_moved_pos = [move for move in step_moved_pos if legible(car, move)]
         #print "car %s" % car, fesible_step_moved_pos
 
@@ -189,7 +193,7 @@ def psuccessors(state):
                 if s_car_name != car_name:
                     ret.append((s_car_name, pos))
                 else:
-                    ret.append((car_name, moved_pos))
+                    ret.append((car_name, moved_pos)) 
             return tuple(ret)
 
         #return {state:action} pair
