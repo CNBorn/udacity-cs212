@@ -126,7 +126,7 @@ def psuccessors(state):
         if item_name == "|":
             walls.extend(item_pos)
 
-    for car_name, car_pos in state:
+    for car_name, _ in state:
         if car_name not in ["@", "|"]:
             other_car_pos.setdefault(car_name, [pos for pos in cars_pos if (pos not in cars[car_name] and pos not in walls)])
     #print cars
@@ -180,11 +180,14 @@ def psuccessors(state):
         step_v = [i*direction for i in range(N, N*(N-1-2), N) for direction in [1, -1]]
         steps.extend(step_v)
 
+
         step_moved_pos = [tuple(((p + s) for p in car_pos if p+s not in other_car_pos[car] and p+s not in walls)) for s in steps]
-        step_moved_pos = [s for s in step_moved_pos if s]
-        #print "car %s step_moved_pos" % car, step_moved_pos
+        step_moved_pos = [s for s in step_moved_pos if s and len(s) == len(car_pos)]
+        #if car == "Y":
+        #    print "car %s step_moved_pos" % car, step_moved_pos
         fesible_step_moved_pos = [move for move in step_moved_pos if legible(car, move)]
-        #print "car %s" % car, fesible_step_moved_pos
+        #if car == "Y":
+        #    print "car %s" % car, fesible_step_moved_pos
 
         def get_new_state_with_car_move(car_name, moved_pos):
             ret_state = list(state)
