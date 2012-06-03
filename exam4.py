@@ -131,7 +131,44 @@ def psuccessors(state):
             other_car_pos.setdefault(car_name, [pos for pos in cars_pos if (pos not in cars[car_name] and pos not in walls)])
     #print cars
 
+    def distant_to_boarder(car, one_direction_step):
+        find_boarder = False
+        current_pos = cars[car]
+        
+        if one_direction_step == 1:
+            length_tweak = len(cars[car]) - 1
+        else:
+            length_tweak = 0
+
+        if abs(one_direction_step) == N:
+            v_find = True
+        else:
+            v_find = False
+
+        if not v_find:
+            start_pos = cars[car][0]
+            while not find_boarder:
+                start_pos += one_direction_step
+                if start_pos in walls or start_pos in other_car_pos[car]:
+                    find_boarder = True
+            return start_pos - cars[car][0] - length_tweak
+        else:
+            #vertical find
+            results = []
+            for pos in current_pos:
+                v_pos = pos
+                while not find_boarder:
+                    v_pos += one_direction_step
+                    if v_pos in walls or v_pos in other_car_pos[car] or v_pos < 1 or v_pos > 64:
+                        find_boarder = True
+                results.append(v_pos - pos)
+        return max(results)
+
     def has_clear_path_direction(car, one_direction, abs_step):
+
+        near_by_grid_is_blocked = any((pos+(one_direction*abs_step) in walls or pos+(one_direction*abs_step) in other_car_pos[car] for pos in cars[car]))
+        if near_by_grid_is_blocked:
+            return False
 
         origin_car_pos = cars[car]
         if one_direction < 0:
@@ -139,10 +176,11 @@ def psuccessors(state):
         else:
             step = abs_step
 
-        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos[:1]))
+        #should not be one_direction+step, one_direction+step only searchs next grid
+        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, distant_to_boarder(car, step), step) for pos in origin_car_pos[:1]))
+        #other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos[:1]))
         if other_car_in_the_path:
             return False
-
         return True
 
     def has_clear_path(car, move):
@@ -167,8 +205,8 @@ def psuccessors(state):
         return True
 
     def legible(car, move):
-        if not has_clear_path(car, move):
-            return False
+        #if not has_clear_path(car, move):
+        #    return False
         return True
 
     def get_car_action(car_name, moved_pos):
@@ -176,13 +214,17 @@ def psuccessors(state):
         return moved_pos[0] - origin_pos[0]
 
     state_action_pair = {}
+
+    #print distant_to_boarder("A", 45, -1)
+    
     for car, car_pos in cars.iteritems():
 
         #Only +-(N-car_pos) - 2, +-N*(N-1)
         #make fewer directions
         h_directions = [d for d in [1,-1] if has_clear_path_direction(car, d, 1)]
         v_directions = [d for d in [1, -1] if has_clear_path_direction(car, d, N)]
-        #print h_directions, v_directions
+        #if car == "A":
+        #    print h_directions, v_directions
         
         steps = [i*direction for i in range(1,N-1) for direction in h_directions]
         step_v = [i*direction for i in range(N, N*(N-1-2), N) for direction in v_directions]
@@ -344,7 +386,7 @@ def path_actions(path):
     "Return a list of actions in this path."
     return path[1::2]
 
-#print path_actions(solve_parking_puzzle(puzzle1))
+print path_actions(solve_parking_puzzle(puzzle1))
 for r in solve_parking_puzzle(puzzle1)[::2]:
     print show(r)
 
