@@ -131,6 +131,20 @@ def psuccessors(state):
             other_car_pos.setdefault(car_name, [pos for pos in cars_pos if (pos not in cars[car_name] and pos not in walls)])
     #print cars
 
+    def has_clear_path_direction(car, one_direction, abs_step):
+
+        origin_car_pos = cars[car]
+        if one_direction < 0:
+            step = 0-abs_step
+        else:
+            step = abs_step
+
+        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos[:1]))
+        if other_car_in_the_path:
+            return False
+
+        return True
+
     def has_clear_path(car, move):
         #other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car] or pos in walls)] #bottle neck?
 
@@ -146,26 +160,15 @@ def psuccessors(state):
         else:
             step = step_unit
 
-        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos))
+        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos[:1]))
         if other_car_in_the_path:
             return False
 
         return True
 
     def legible(car, move):
-
         if not has_clear_path(car, move):
             return False
-        
-        run_into_wall = any((pos for pos in move if pos in walls))
-        if run_into_wall:
-            return False
-        
-        other_cars_pos = (pos for pos in cars_pos if (pos not in cars[car]))
-        run_into_other_cars = any((m in other_cars_pos for m in move))
-        if run_into_other_cars:
-            return False
-
         return True
 
     def get_car_action(car_name, moved_pos):
@@ -176,13 +179,19 @@ def psuccessors(state):
     for car, car_pos in cars.iteritems():
 
         #Only +-(N-car_pos) - 2, +-N*(N-1)
-        steps = [i*direction for i in range(1,N-1) for direction in [1,-1]]
-        step_v = [i*direction for i in range(N, N*(N-1-2), N) for direction in [1, -1]]
+        #make fewer directions
+        h_directions = [d for d in [1,-1] if has_clear_path_direction(car, d, 1)]
+        v_directions = [d for d in [1, -1] if has_clear_path_direction(car, d, N)]
+        #print h_directions, v_directions
+        
+        steps = [i*direction for i in range(1,N-1) for direction in h_directions]
+        step_v = [i*direction for i in range(N, N*(N-1-2), N) for direction in v_directions]
         steps.extend(step_v)
-
 
         step_moved_pos = [tuple(((p + s) for p in car_pos if p+s not in other_car_pos[car] and p+s not in walls)) for s in steps]
         step_moved_pos = [s for s in step_moved_pos if s and len(s) == len(car_pos)]
+        #filtered out all illegible destination pos
+        
         #if car == "Y":
         #    print "car %s step_moved_pos" % car, step_moved_pos
         fesible_step_moved_pos = [move for move in step_moved_pos if legible(car, move)]
@@ -291,12 +300,13 @@ puzzle3 = grid((
     ('O', locs(45, 2, N)),
     ('Y', locs(49, 3))))
 
-print puzzle1 
-print show(puzzle1)
+#print puzzle1 
+#print show(puzzle1)
 #print psuccessors(puzzle1)
-for state, action in psuccessors(puzzle1).iteritems():
-    print state
-    print action
+
+#for state, action in psuccessors(puzzle1).iteritems():
+#    print state
+#    print action
     
 def is_goal(state):
     target_car_pos = []
@@ -334,6 +344,9 @@ def path_actions(path):
     "Return a list of actions in this path."
     return path[1::2]
 
-print path_actions(solve_parking_puzzle(puzzle1))
+#print path_actions(solve_parking_puzzle(puzzle1))
 for r in solve_parking_puzzle(puzzle1)[::2]:
     print show(r)
+
+import cProfile
+cProfile.run('solve_parking_puzzle(puzzle1)')
