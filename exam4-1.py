@@ -370,6 +370,7 @@ puzzle1 = grid((
     ('A', locs(45, 2))))
 
 puzzle2 = grid((
+    ('@', (31,)),
     ('*', locs(26, 2)),
     ('B', locs(20, 3, N)),
     ('P', locs(33, 3)),
@@ -377,6 +378,7 @@ puzzle2 = grid((
     ('Y', locs(51, 3))))
 
 puzzle3 = grid((
+    ('@', (31,)),
     ('*', locs(25, 2)),
     ('B', locs(19, 3, N)),
     ('P', locs(36, 3)),
@@ -429,6 +431,37 @@ def path_actions(path):
 
 print path_actions(solve_parking_puzzle(puzzle1))
 for r in solve_parking_puzzle(puzzle1)[::2]:
+    print show(r)
+
+print path_actions(solve_parking_puzzle(puzzle2))
+for r in solve_parking_puzzle(puzzle2)[::2]:
+    print show(r)
+
+print path_actions(solve_parking_puzzle(puzzle3))
+for r in solve_parking_puzzle(puzzle3)[::2]:
+    print show(r)
+
+puzzle4 = grid((
+    ('*', locs(25, 2)),
+    ('B', locs(19, 2, N))))
+
+puzzle5 = grid((
+    ('*', locs(25, 2)),
+    ('B', locs(19, 2, N)),
+    ('Y', locs(41,6))))
+
+puzzle6 = (('@', (14,)),(('*',(11,12))), ('|', (0, 1, 2, 3, 4, 5, 9, 10, 15, 19, 20, 21, 22, 23, 24)))
+
+print path_actions(solve_parking_puzzle(puzzle4))
+for r in solve_parking_puzzle(puzzle4)[::2]:
+    print show(r)
+
+print path_actions(solve_parking_puzzle(puzzle5))
+for r in solve_parking_puzzle(puzzle5)[::2]:
+    print show(r)
+
+print path_actions(solve_parking_puzzle(puzzle5))
+for r in solve_parking_puzzle(puzzle5)[::2]:
     print show(r)
 
 import cProfile
