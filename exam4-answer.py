@@ -112,191 +112,26 @@ def solve_parking_puzzle(start, N=N):
     return shortest_path_search(grid(start, N), psuccessors, is_goal)
 
 def psuccessors(state):
-    from copy import deepcopy
-    import itertools
+    results = {}
+    occupied = set(s for (c, sqs) in state for s in sqs if c != '@')
+    for (c, sqs) in state:
+        if c not in '|@': # Walls and goals can't move
+            diff = sqs[1]-sqs[0]
+            # Either move the max of sqs up, or the min of sqs down
+            for (d, start) in [(diff, max(sqs)), (-diff, min(sqs))]:
+                for i in range(1, N-2):
+                    s = start + d*i
+                    if s in occupied:
+                        break # Stop when you hit something
+                    results[update(state,c,tuple(q+d*i for q in sqs))]=(c,d*i)
+    return results
 
-    cars = {}
-    walls = []
-    cars_pos = []
-    other_car_pos = {}
-    for item_name, item_pos in state:
-        if item_name not in ["@", "|"]:
-            cars.setdefault(item_name, item_pos)
-            cars_pos.extend(item_pos)
-        if item_name == "|":
-            walls.extend(item_pos)
-
-    for car_name, _ in state:
-        if car_name not in ["@", "|"]:
-            other_car_pos.setdefault(car_name, [pos for pos in cars_pos if (pos not in cars[car_name] and pos not in walls)])
-    #print cars
-
-    def distant_to_boarder(car, one_direction_step):
-        find_boarder = False
-        current_pos = cars[car]
-        
-        if one_direction_step == 1:
-            length_tweak = len(cars[car]) - 1
-        else:
-            length_tweak = 0
-
-        if abs(one_direction_step) not in (1, N):
-            raise
-
-        if abs(one_direction_step) == N:
-            v_find = True
-        else:
-            v_find = False
-
-        if not v_find:
-            start_pos = cars[car][0]
-            while not find_boarder:
-                start_pos += one_direction_step
-                if start_pos in walls or start_pos in other_car_pos[car]:
-                    find_boarder = True
-            return start_pos - cars[car][0] - length_tweak - 1
-        else:
-            #vertical find
-            results = []
-            for pos in current_pos:
-                v_pos = pos
-                while not find_boarder:
-                    v_pos += one_direction_step
-                    if v_pos in walls or v_pos in other_car_pos[car]:
-                        find_boarder = True
-                results.append(v_pos - pos)
-            return min(results)
-
-    def has_clear_path_direction(car, one_direction, abs_step):
-
-        near_by_grid_is_blocked = any((pos+(one_direction*abs_step) in walls or pos+(one_direction*abs_step) in other_car_pos[car] for pos in cars[car]))
-        if near_by_grid_is_blocked:
-            return False
-
-        return True
-
-        origin_car_pos = cars[car]
-        if one_direction < 0:
-            step = 0-abs_step
-        else:
-            step = abs_step
-
-        #should not be one_direction+step, one_direction+step only searchs next grid
-        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, distant_to_boarder(car, step), step) for pos in origin_car_pos[:1]))
-        #other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos[:1]))
-        if other_car_in_the_path:
-            return False
-        return True
-
-    def has_clear_path(car, move):
-        #other_cars_pos = [pos for pos in cars_pos if (pos not in cars[car] or pos in walls)] #bottle neck?
-
-        origin_car_pos = cars[car]
-        one_direction = get_car_action(car, move)
-
-        if one_direction % N == 0:
-            step_unit = 8
-        else:
-            step_unit = 1
-        if one_direction < 0:
-            step = 0-step_unit
-        else:
-            step = step_unit
-
-        other_car_in_the_path = any(((pos+grid) in other_car_pos[car] or (pos+grid) in walls for grid in xrange(0, one_direction+step, step) for pos in origin_car_pos[:1]))
-        if other_car_in_the_path:
-            return False
-
-        return True
-
-    def legible(car, move):
-        if not has_clear_path(car, move):
-            return False
-        return True
-
-    def get_car_action(car_name, moved_pos):
-        origin_pos = cars[car_name]
-        return moved_pos[0] - origin_pos[0]
-
-    state_action_pair = {}
-
-    #print distant_to_boarder("A", 1)
-    #print distant_to_boarder("A", -8)
-    
-    for car, car_pos in cars.iteritems():
-
-        #Only +-(N-car_pos) - 2, +-N*(N-1)
-        h_directions = [d for d in [1,-1] if has_clear_path_direction(car, d, 1)]
-        v_directions = [d for d in [1, -1] if has_clear_path_direction(car, d, N)]
-        
-        steps = [i*direction for i in range(1,N-1) for direction in h_directions if not any((p+(i*direction) in other_car_pos[car] or p+(i*direction) in walls for p in car_pos))]
-
-        step_v = [i*direction for i in range(N, N*(N-1-2), N) for direction in v_directions if not any((p+(i*direction) in other_car_pos[car] or p+(i*direction) in walls for p in car_pos))]
-
-        def filter_out_unconsective_steps(steps, n_step):
-
-            results = []
-
-            positive_steps = [s for s in steps if s > 0]
-            if positive_steps:
-                perfect_positive_steps = range(min(positive_steps), max(positive_steps), n_step)
-                positive_break_points = set(positive_steps) ^ set(perfect_positive_steps)
-                positive_break_point = min(positive_break_points)
-                if positive_break_point:
-                    results.extend([s for s in positive_steps if s < positive_break_point])
-                else:
-                    results.extend(positive_steps)
- 
-
-            negative_steps = [s for s in steps if s < 0]
-
-            if negative_steps:
-                perfect_negative_steps = range(max(negative_steps), min(negative_steps)-n_step, 0-n_step)
-                
-                negative_break_points = set(negative_steps) ^ set(perfect_negative_steps)
-
-                if negative_break_points:
-                    negative_break_point = min(negative_break_points)
-                    results.extend([s for s in negative_steps if s < negative_break_point])
-                else:
-                    results.extend(negative_steps)
-            return results
-
-        #print car
-        #print "+", filter_out_unconsective_steps(steps, 1)
-        #print "v", filter_out_unconsective_steps(step_v, N)
-
-        steps_r = steps + step_v
-        #steps1 = filter_out_unconsective_steps(steps, 1) + filter_out_unconsective_steps(step_v, N)
-        #print car, steps_r, steps1
-        #exit(1)
-
-        step_moved_pos = [tuple(((p + s) for p in car_pos if p+s not in other_car_pos[car] and p+s not in walls)) for s in steps_r]
-        step_moved_pos = [s for s in step_moved_pos if s and len(s) == len(car_pos)]
-        #filtered out all illegible destination pos
-        
-        #if car == "Y":
-        #    print "car %s step_moved_pos" % car, step_moved_pos
-        fesible_step_moved_pos = [move for move in step_moved_pos if legible(car, move)]
-        #if car == "Y":
-        #    print "car %s" % car, fesible_step_moved_pos
-
-        def get_new_state_with_car_move(car_name, moved_pos):
-            ret_state = list(state)
-            ret = []
-            for s_car_name, pos in ret_state:
-                if s_car_name != car_name:
-                    ret.append((s_car_name, pos))
-                else:
-                    ret.append((car_name, moved_pos)) 
-            return tuple(ret)
-
-        #return {state:action} pair
-        for step in set(fesible_step_moved_pos):
-            state_action_pair.setdefault(get_new_state_with_car_move(car, step), (car, get_car_action(car, step)))
-        
-    return state_action_pair
-
+def update(tuples, key, val):
+    "Return a new (key, val) tuple, dropping old value of key and adding new."
+    # Sort the keys to make sure the result is canonical.
+    d = dict(tuples)
+    d[key] = val
+    return tuple(sorted(d.items())) 
 
 # But it would also be nice to have a simpler format to describe puzzles,
 # and a way to visualize states.
