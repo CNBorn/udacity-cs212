@@ -304,7 +304,7 @@ def psuccessors(state):
 
 def locs(start, n, incr=1):
     "Return a tuple of n locations, starting at start and incrementing by incr."
-    return tuple(tuple((start + (x)*incr for x in xrange(n))))
+    return tuple(start+i*incr for i in range(n))
 
 def grid(cars, N=N):
     """Return a tuple of (object, locations) pairs -- the format expected for
@@ -314,37 +314,11 @@ def grid(cars, N=N):
     pair, like ('@', (31,)), to indicate this. The variable 'cars'  is a
     tuple of pairs like ('*', (26, 27)). The return result is a big tuple
     of the 'cars' pairs along with the walls and goal pairs."""
-    ret = [x for x in xrange(N*N)]
-    for x in xrange(N):
-        ret[x] = "|"
-        ret[x + N * (N-1)] = "|"
-
-    for x in xrange(1, N-1):
-        ret[x * N] = "|"
-        ret[x * N + N - 1] = "|"
-
-    for (c, squares) in cars:
-        for s in squares:
-            ret[s] = c
-
-    ret[(N-1) + ((N/2)-1) * N] = "@"
-
-    ret_dict = {}
-    for i, c in enumerate(ret):
-        if not str(c).isdigit():
-            ret_dict.setdefault(c, [])
-            ret_dict[c].append(i)
-
-    result = []
-    for k,v in ret_dict.iteritems():
-        result.append((k,tuple(v)))
-
-    return tuple(result)
-    
-    """0 1 2
-       3 4 5
-       6 7 8"""
-
+    goals = ((N**2)//2 - 1,)
+    walls = (locs(0, N) + locs(N*(N-1), N) + locs(N, N-2, N) 
+             + locs(2*N-1, N-2, N))
+    walls = tuple(w for w in walls if w not in goals)
+    return cars + (('|', walls), ('@', goals))    
 
 def show(state, N=N):
     "Print a representation of a state as an NxN grid."
