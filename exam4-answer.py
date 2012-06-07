@@ -368,13 +368,9 @@ puzzle3 = grid((
 #    print action
     
 def is_goal(state):
-    target_car_pos = []
-    for item_name, item_pos in state:
-        if item_name == "*":
-            target_car_pos.extend(item_pos)
-        if item_name == "@":
-            goal = item_pos[0]
-    return goal in target_car_pos
+    d = dict(state)
+    return set(d['*']) & set(d['@'])
+
 
 # Here are the shortest_path_search and path_actions functions from the unit.
 # You may use these if you want, but you don't have to.
