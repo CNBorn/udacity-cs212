@@ -109,7 +109,7 @@ def solve_parking_puzzle(start, N=N):
     of (object, locations) pairs).  Return a path of [state, action, ...]
     alternating items; an action is a pair (object, distance_moved),
     such as ('B', 16) to move 'B' two squares down on the N=8 grid."""
-    return shortest_path_search(start, psuccessors, is_goal)
+    return shortest_path_search(grid(start, N), psuccessors, is_goal)
 
 def psuccessors(state):
     from copy import deepcopy
